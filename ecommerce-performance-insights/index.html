@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ecommerce Performance Insights - Portafolio - Angel García</title>
+  <meta name="description" content="¿Los productos más vistos son los que generan más ingresos? Embudo por producto reconstruido desde el export de GA4 en BigQuery." />
+  <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
+  <link rel="stylesheet" href="../assets/caso.css" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KDXJ37SD');</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<nav class="topnav">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a class="topnav-logo" href="https://www.angelgarciadatablog.com/">Angel García</a>
+  </div>
+  <div class="topnav-links">
+    <a href="https://www.angelgarciadatablog.com/">Blog</a>
+    <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
+    <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
+  </div>
+</nav>
+
+<main class="cs-wrap">
+
+  <a class="cs-volver" href="../">&larr; Portafolio</a>
+
+  <header class="cs-head">
+    <div class="cs-cat">Analítica digital</div>
+    <h1>Ecommerce Performance Insights</h1>
+    <p class="cs-pregunta">¿Los productos más vistos son los que generan más ingresos?</p>
+
+    <div class="cs-acciones">
+      <a class="cs-accion" href="https://lookerstudio.google.com/reporting/5e8d97c8-e7c4-4c62-93f5-0d7396d216d7" target="_blank" data-destino="dashboard">Ver dashboard <span>&#8599;</span></a>
+      <a class="cs-accion" href="https://github.com/angelgarciadatablog/ecommerce-performance-insights" target="_blank" data-destino="repo">Ver repositorio <span>&#8599;</span></a>
+      <a class="cs-accion" href="https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset?hl=es-419" target="_blank" data-destino="dataset">Documentación del dataset <span>&#8599;</span></a>
+    </div>
+
+    <div class="cs-metricas">
+      <div class="cs-metrica"><b>4.3M</b><span>eventos</span></div>
+      <div class="cs-metrica"><b>92</b><span>tablas diarias</span></div>
+      <div class="cs-metrica"><b>3</b><span>meses</span></div>
+    </div>
+  </header>
+
+  <div class="cs-layout">
+
+    <div>
+      <div class="cs-video">
+        <div class="cs-video-vacio">video del proyecto</div>
+      </div>
+
+      <article class="cs-body" id="cs-body">
+
+        <h2>El problema</h2>
+        <p>En una tienda con más de mil productos, la atención y el dinero no se reparten igual. Marketing decide dónde invertir mirando el tráfico, pero el tráfico no paga: paga la conversión.</p>
+        <p>La pregunta concreta: <strong>¿coinciden los productos y categorías más vistos con los que más ingresos generan?</strong> Y donde no coinciden, ¿qué habría que hacer con esa diferencia?</p>
+
+        <h2>Los datos</h2>
+        <table class="cs-tabla">
+          <tr><th>Origen</th><td><code>bigquery-public-data.ga4_obfuscated_sample_ecommerce</code></td></tr>
+          <tr><th>Qué es</th><td>Export crudo de GA4 de la Google Merchandise Store. Datos reales ofuscados, publicados por Google</td></tr>
+          <tr><th>Periodo</th><td>1 nov 2020 &rarr; 31 ene 2021</td></tr>
+          <tr><th>Volumen</th><td><strong>4,295,584 eventos</strong> &middot; 17 tipos de evento &middot; 270,154 usuarios</td></tr>
+          <tr><th>Estructura</th><td>92 tablas diarias (<code>events_20201101</code> &hellip; <code>events_20210131</code>)</td></tr>
+          <tr><th>Grano</th><td>Un evento por fila, con los productos anidados en un <code>ARRAY</code></td></tr>
+          <tr><th>Herramientas</th><td>GA4 &middot; BigQuery &middot; SQL &middot; Looker Studio</td></tr>
+        </table>
+        <div class="cs-aviso">
+          <p>Es un dataset público de demostración, no un cliente. Los hallazgos son reales sobre esa tienda, pero el caso demuestra método, no una consultoría entregada.</p>
+        </div>
+
+        <h2>El proceso</h2>
+        <p>El reto no es el análisis, es que <strong>el export de GA4 no se puede analizar tal como viene</strong>: cada fila es un evento y los productos viven anidados dentro. Un solo evento de compra puede contener cinco productos distintos.</p>
+        <ol>
+          <li><strong>Desanidar</strong> el array <code>items</code> con <code>UNNEST</code>, para pasar de "un evento" a "un producto dentro de un evento".</li>
+          <li><strong>Convertir eventos en métricas</strong> con <code>CASE WHEN event_name = …</code> + <code>SUM</code>. Aquí aparece el embudo: cada etapa es un nombre de evento distinto sobre la misma fila.</li>
+          <li><strong>Recorrer las 92 tablas diarias</strong> con <code>_TABLE_SUFFIX</code> en vez de apuntar a una tabla fija.</li>
+          <li><strong>Materializar el resultado</strong> en una tabla maestra de 51,030 filas con grano producto &times; día.</li>
+        </ol>
+        <p>El paso 4 es la decisión de arquitectura más importante del proyecto: sin ella, cada filtro del dashboard vuelve a escanear millones de eventos, con el coste y la latencia que eso implica.</p>
+
+        <button class="cs-boton" data-sql="sql-principal">Ver la consulta SQL</button>
+
+        <h2>Hallazgos</h2>
+        <ol>
+          <li><strong>Vistas que no convierten durante la campaña.</strong> Entre el 26 de diciembre y el 17 de enero las vistas de producto subieron con fuerza, sin una subida proporcional en ventas. La campaña trajo atención, no compradores.</li>
+          <li><strong>Categorías con mucho tráfico y cero ingresos.</strong> Men’s T-Shirts, Mug, Sale, Clearance, Eco-friendly, Small goods y Backpacks aparecen en el top 10 de productos más vistos y no generan ingresos.</li>
+          <li><strong>La categoría más rentable no es la más vista.</strong> Apparel lidera en ingresos pero no en vistas: genera el dinero desde una posición de baja exposición.</li>
+        </ol>
+
+        <h2>Qué habilita decidir</h2>
+        <p>Al ser un dataset público no hay un negocio real al otro lado, así que el caso no cierra con decisiones tomadas sino con las que el análisis pone sobre la mesa.</p>
+        <ol>
+          <li><strong>Reasignar inversión publicitaria</strong> hacia los productos con tráfico alto y conversión baja, o retirarla de ellos. El análisis identifica cuáles son, uno por uno.</li>
+          <li><strong>Investigar la causa del tráfico sin conversión</strong> antes de tocar nada: venta por otro canal, rotura de inventario o precio. Son tres causas con tres respuestas opuestas.</li>
+          <li><strong>Subir la visibilidad de Apparel</strong>, que ya convierte mejor: portada, banners, correos, campañas pagadas. Es la palanca con el retorno más probable porque no hay que arreglar nada, solo exponer más lo que funciona.</li>
+        </ol>
+
+        <h2>Cómo replicarlo</h2>
+        <p>Cualquiera puede reproducirlo entero: la fuente es pública y el SQL está versionado. No hace falta acceso a ningún dato privado.</p>
+        <ol>
+          <li>Ejecutar la consulta sobre el dataset público.</li>
+          <li>Materializar el resultado en una tabla propia.</li>
+          <li>Conectar Looker Studio a esa tabla, no al export.</li>
+        </ol>
+
+      </article>
+    </div>
+
+    <aside class="cs-toc">
+      <h3>En esta página</h3>
+      <ul id="cs-toc-lista"></ul>
+    </aside>
+
+  </div>
+</main>
+
+<!-- ============ OVERLAY DE CÓDIGO ============ -->
+<div class="cs-overlay" id="cs-overlay">
+  <div class="cs-panel">
+    <div class="cs-panel-head">
+      <h4 id="cs-panel-titulo">Consulta SQL</h4>
+      <div class="cs-panel-acciones">
+        <button class="cs-panel-btn" id="cs-copiar">Copiar</button>
+        <button class="cs-panel-btn" id="cs-descargar">Descargar .sql</button>
+        <button class="cs-panel-btn" id="cs-cerrar">Cerrar</button>
+      </div>
+    </div>
+    <pre><code id="cs-codigo"></code></pre>
+  </div>
+</div>
+
+<script type="text/plain" id="sql-principal" data-titulo="rendimiento-producto-ga4-big-query.sql">
+WITH product_performance AS
+(SELECT
+    PARSE_DATE('%Y%m%d', event_date) AS date,
+    items.item_id AS item_id,
+    SUM(CASE WHEN event_name = 'view_item'      THEN IFNULL(items.quantity, 1) ELSE 0 END) AS view_item,
+    SUM(CASE WHEN event_name = 'add_to_cart'    THEN IFNULL(items.quantity, 1) ELSE 0 END) AS add_to_cart,
+    SUM(CASE WHEN event_name = 'begin_checkout' THEN IFNULL(items.quantity, 1) ELSE 0 END) AS begin_checkout,
+    SUM(CASE WHEN event_name = 'purchase'       THEN IFNULL(items.quantity, 1) ELSE 0 END) AS purchase_item,
+    SUM(CASE WHEN event_name = 'purchase'       THEN items.item_revenue        ELSE 0 END) AS revenue_item
+  FROM
+    `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
+    UNNEST(items) AS items
+  WHERE
+    REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
+      BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
+      AND     FORMAT_DATE("%Y%m%d", current_date())
+    AND items.item_id <> '(not set)'
+  GROUP BY date, item_id
+),
+
+item_name AS
+(SELECT item_id, ANY_VALUE(item_name) AS item_name
+  FROM (
+    SELECT
+      items.item_id,
+      IF(items.item_name = '(not set)', 'no_name', items.item_name) AS item_name
+    FROM
+      `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
+      UNNEST(items) AS items
+    WHERE
+      REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
+        BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
+        AND     FORMAT_DATE("%Y%m%d", current_date())
+      AND items.item_id <> '(not set)'
+  )
+  GROUP BY item_id
+),
+
+item_brand AS
+(SELECT item_id, ANY_VALUE(item_brand) AS item_brand
+  FROM (
+    SELECT
+      items.item_id,
+      CASE
+        WHEN items.item_brand = ''          THEN 'No Brand'
+        WHEN items.item_brand = '(not set)' THEN 'No Brand'
+        WHEN items.item_brand LIKE '%#%'    THEN 'Remarkable'
+        ELSE items.item_brand
+      END AS item_brand
+    FROM
+      `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
+      UNNEST(items) AS items
+    WHERE
+      REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
+        BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
+        AND     FORMAT_DATE("%Y%m%d", current_date())
+      AND items.item_id <> '(not set)'
+  )
+  GROUP BY item_id
+),
+
+item_category AS
+(SELECT
+    item_id,
+    ANY_VALUE(item_category)   AS item_category,
+    ANY_VALUE(item_category_2) AS item_category_2
+  FROM (
+    SELECT
+      items.item_id,
+      IF(SPLIT(items.item_category, "/")[SAFE_OFFSET(0)] IN ('', '(not set)'),
+         'No Category',
+         SPLIT(items.item_category, "/")[SAFE_OFFSET(0)]) AS item_category,
+      IF(SPLIT(items.item_category, "/")[SAFE_OFFSET(1)] IS NULL
+           OR SPLIT(items.item_category, "/")[SAFE_OFFSET(1)] IN ('', '(not set)'),
+         'No Category',
+         SPLIT(items.item_category, "/")[SAFE_OFFSET(1)]) AS item_category_2
+    FROM
+      `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
+      UNNEST(items) AS items
+    WHERE
+      REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
+        BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
+        AND     FORMAT_DATE("%Y%m%d", current_date())
+      AND items.item_id <> '(not set)'
+  )
+  GROUP BY item_id
+),
+
+item_link AS
+(SELECT
+    items.item_id AS item_id,
+    ANY_VALUE((SELECT value.string_value FROM UNNEST(event_params) WHERE KEY = 'page_location')) AS link
+  FROM
+    `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
+    UNNEST(items) AS items
+  WHERE
+    REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
+      BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
+      AND     FORMAT_DATE("%Y%m%d", current_date())
+    AND items.item_id <> '(not set)'
+  GROUP BY items.item_id
+)
+
+SELECT
+  t1.date,
+  t1.item_id,
+  t2.item_name,
+  t3.item_brand,
+  t4.item_category,
+  t4.item_category_2,
+  t1.view_item,
+  t1.add_to_cart,
+  t1.begin_checkout,
+  t1.purchase_item,
+  t1.revenue_item,
+  t5.link
+FROM product_performance t1
+LEFT JOIN item_name     t2 ON t1.item_id = t2.item_id
+LEFT JOIN item_brand    t3 ON t1.item_id = t3.item_id
+LEFT JOIN item_category t4 ON t1.item_id = t4.item_id
+LEFT JOIN item_link     t5 ON t1.item_id = t5.item_id
+</script>
+
+<script>
+(function () {
+  const overlay  = document.getElementById('cs-overlay');
+  const codigo   = document.getElementById('cs-codigo');
+  const titulo   = document.getElementById('cs-panel-titulo');
+  const slug     = 'ecommerce-performance-insights';
+  let nombreArchivo = 'consulta.sql';
+
+  const dl = o => { window.dataLayer = window.dataLayer || []; window.dataLayer.push(o); };
+
+  function abrir(id) {
+    const fuente = document.getElementById(id);
+    if (!fuente) return;
+    nombreArchivo   = fuente.dataset.titulo || 'consulta.sql';
+    titulo.textContent = nombreArchivo;
+    codigo.textContent = fuente.textContent.trim();
+    overlay.classList.add('abierto');
+    document.body.style.overflow = 'hidden';
+    dl({ event: 'caso_ver_sql', slug: slug, consulta: nombreArchivo });
+  }
+
+  function cerrar() {
+    overlay.classList.remove('abierto');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-sql]').forEach(b =>
+    b.addEventListener('click', () => abrir(b.dataset.sql)));
+
+  document.getElementById('cs-cerrar').addEventListener('click', cerrar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) cerrar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrar(); });
+
+  document.getElementById('cs-copiar').addEventListener('click', async function () {
+    await navigator.clipboard.writeText(codigo.textContent);
+    this.textContent = 'Copiado';
+    setTimeout(() => { this.textContent = 'Copiar'; }, 1600);
+    dl({ event: 'caso_copiar_sql', slug: slug, consulta: nombreArchivo });
+  });
+
+  document.getElementById('cs-descargar').addEventListener('click', () => {
+    const blob = new Blob([codigo.textContent], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombreArchivo;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    dl({ event: 'caso_descargar_sql', slug: slug, consulta: nombreArchivo });
+  });
+
+  document.querySelectorAll('.cs-accion').forEach(a =>
+    a.addEventListener('click', () =>
+      dl({ event: 'caso_salida', slug: slug, destino: a.dataset.destino })));
+
+  // indice de secciones
+  const lista    = document.getElementById('cs-toc-lista');
+  const titulos  = [...document.querySelectorAll('#cs-body h2')];
+  const enlaces  = [];
+
+  titulos.forEach((h, i) => {
+    h.id = h.id || 'sec-' + i;
+    const li = document.createElement('li');
+    const a  = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    lista.appendChild(li);
+    enlaces.push(a);
+  });
+
+  const observador = new IntersectionObserver(entradas => {
+    entradas.forEach(e => {
+      if (!e.isIntersecting) return;
+      const i = titulos.indexOf(e.target);
+      enlaces.forEach((a, j) => a.classList.toggle('activo', j === i));
+    });
+  }, { rootMargin: '-88px 0px -70% 0px' });
+
+  titulos.forEach(h => observador.observe(h));
+})();
+</script>
+
+</body>
+</html>

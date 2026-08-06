@@ -1,0 +1,230 @@
+/* ===== PORTAFOLIO =====
+   Hereda variables de /assets/styles.css del blog.
+   Layout: dos columnas asimétricas. Izquierda fija (título + filtros),
+   derecha con la lista. Sin columna centrada, sin cajas.
+*/
+
+.pf-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 72px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 44px 48px 80px;
+  align-items: start;
+}
+
+/* ---------- COLUMNA IZQUIERDA (fija) ---------- */
+.pf-side {
+  position: sticky;
+  top: 92px;
+}
+
+.pf-side h1 {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.pf-side p {
+  color: var(--color-texto-cuerpo);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.pf-filtros {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-borde);
+}
+
+.pf-filtro {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+  transition: color .15s;
+}
+
+.pf-filtro:hover { color: var(--color-texto-cuerpo); }
+.pf-filtro.activo { color: var(--color-texto); }
+
+.pf-contador {
+  margin-top: 26px;
+  color: #666666;
+  font-size: 12.5px;
+}
+
+/* ---------- COLUMNA DERECHA ---------- */
+.pf-main { min-width: 0; }
+
+.pf-buscador-top input {
+  margin-bottom: 0;
+  padding: 4px 0;
+  font-size: 14px;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.pf-buscador-top input:focus { border: none; }
+
+.pf-buscador-top { margin-bottom: 18px; }
+
+.pf-lista {
+  border-top: 1px solid var(--color-borde);
+}
+
+.pf-card {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 34px;
+  align-items: start;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--color-borde);
+  color: inherit;
+}
+
+.pf-card.oculta { display: none; }
+
+/* ---------- IMAGEN ---------- */
+/* 16:9 — la portada de cada caso es el thumbnail de su video */
+.pf-thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #161616;
+}
+
+.pf-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  opacity: .88;
+  transition: opacity .25s;
+}
+
+.pf-card:hover .pf-thumb img { opacity: 1; }
+
+.pf-thumb-vacia {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3a3a3a;
+  font-size: 12px;
+}
+
+/* ---------- CONTENIDO ---------- */
+.pf-cat {
+  color: var(--color-texto-suave);
+  font-size: 12.5px;
+  margin-bottom: 7px;
+}
+
+.pf-card h2 {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin-bottom: 7px;
+  transition: color .15s;
+}
+
+.pf-card:hover h2 { color: var(--color-acento); }
+
+.pf-pregunta {
+  color: var(--color-texto);
+  font-size: 15px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+.pf-desc {
+  color: var(--color-texto-cuerpo);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 62ch;
+  margin-bottom: 16px;
+}
+
+/* ---------- MÉTRICAS ---------- */
+.pf-metricas {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 16px;
+}
+
+.pf-metrica b {
+  display: block;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.pf-metrica span {
+  font-size: 12px;
+  color: var(--color-texto-suave);
+}
+
+/* ---------- PIE ---------- */
+.pf-pie {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pf-stack {
+  color: var(--color-texto-suave);
+  font-size: 12.5px;
+}
+
+.pf-cta {
+  color: var(--color-texto-cuerpo);
+  font-size: 13.5px;
+  white-space: nowrap;
+  transition: color .15s;
+}
+
+.pf-card:hover .pf-cta { color: var(--color-acento); }
+
+/* ---------- VACÍO ---------- */
+.pf-vacio {
+  color: var(--color-texto-suave);
+  font-size: 14px;
+  padding: 36px 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1080px) {
+  .pf-layout { gap: 48px; padding: 36px 32px 72px; grid-template-columns: 210px minmax(0, 1fr); }
+  .pf-card { grid-template-columns: 210px minmax(0, 1fr); gap: 26px; }
+}
+
+@media (max-width: 860px) {
+  .pf-layout { grid-template-columns: 1fr; gap: 30px; padding: 32px 24px 64px; }
+  .pf-side { position: static; }
+  .pf-side p { margin-bottom: 22px; }
+  .pf-filtros { flex-direction: row; flex-wrap: wrap; gap: 18px; }
+  .pf-contador { display: none; }
+  .pf-card { grid-template-columns: 1fr; gap: 18px; padding: 24px 0; }
+  .pf-thumb { aspect-ratio: 16 / 9; }
+  .pf-metricas { gap: 24px; }
+}

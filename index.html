@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portafolio - Angel García</title>
+  <meta name="description" content="Casos reales de análisis de datos: la pregunta de negocio, el SQL, los hallazgos y cómo replicarlo." />
+  <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
+  <link rel="stylesheet" href="assets/portafolio.css" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KDXJ37SD');</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<nav class="topnav">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a class="topnav-logo" href="https://www.angelgarciadatablog.com/">Angel García</a>
+  </div>
+  <div class="topnav-links">
+    <a href="https://www.angelgarciadatablog.com/">Blog</a>
+    <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
+    <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
+  </div>
+</nav>
+
+<main class="pf-layout">
+
+  <aside class="pf-side">
+    <h1>Portafolio</h1>
+    <p id="pf-bajada">Proyectos de análisis de datos, de principio a fin.</p>
+
+    <div class="pf-filtros" id="pf-filtros">
+      <button class="pf-filtro activo" data-cat="todos">Todos</button>
+      <button class="pf-filtro" data-cat="analitica-digital">Analítica digital</button>
+      <button class="pf-filtro" data-cat="sql-datos">SQL y datos</button>
+    </div>
+
+    <div class="pf-contador" id="pf-contador">2 casos</div>
+  </aside>
+
+  <div class="pf-main">
+
+  <div class="search-box pf-buscador-top">
+    <input type="text" id="pf-buscador" placeholder="Buscar por herramienta, fuente o tema..." autocomplete="off" />
+  </div>
+
+  <section class="pf-lista" id="pf-lista">
+
+    <!-- CASO 1 -->
+    <a class="pf-card" data-cat="analitica-digital" data-slug="ecommerce-performance-insights"
+       href="ecommerce-performance-insights/">
+      <div class="pf-thumb">
+        <div class="pf-thumb-vacia">captura del dashboard</div>
+      </div>
+      <div class="pf-body">
+        <div class="pf-cat">Analítica digital</div>
+        <h2>Ecommerce Performance Insights</h2>
+        <p class="pf-pregunta">¿Los productos más vistos son los que generan más ingresos?</p>
+        <p class="pf-desc">
+          El export crudo de GA4 llega con los productos anidados dentro de cada evento.
+          Se desanida, se reconstruye el embudo vista → carrito → checkout → compra por
+          producto y se materializa en una tabla maestra para que el dashboard no reescanee
+          millones de eventos en cada filtro.
+        </p>
+        <div class="pf-metricas">
+          <div class="pf-metrica"><b>4.3M</b><span>eventos</span></div>
+          <div class="pf-metrica"><b>92</b><span>tablas diarias</span></div>
+          <div class="pf-metrica"><b>3</b><span>meses</span></div>
+        </div>
+        <div class="pf-pie">
+          <span class="pf-stack">GA4 · BigQuery · SQL · Looker Studio</span>
+          <span class="pf-cta">Ver caso →</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- CASO 2 -->
+    <a class="pf-card" data-cat="sql-datos" data-slug="shopify-orders-analysis"
+       href="shopify-orders-analysis/">
+      <div class="pf-thumb">
+        <div class="pf-thumb-vacia">captura del dashboard</div>
+      </div>
+      <div class="pf-body">
+        <div class="pf-cat">SQL y datos</div>
+        <h2>Shopify Orders Analysis</h2>
+        <p class="pf-pregunta">¿Qué patrones esconden dos años de pedidos?</p>
+        <p class="pf-desc">
+          Talla, género, color y categoría no son columnas del export: se derivan parseando
+          el nombre del producto. Y al verificar los hallazgos contra la tabla, tres de los
+          cuatro se cayeron.
+        </p>
+        <div class="pf-metricas">
+          <div class="pf-metrica"><b>16,081</b><span>pedidos</span></div>
+          <div class="pf-metrica"><b>75</b><span>columnas</span></div>
+          <div class="pf-metrica"><b>24</b><span>meses</span></div>
+        </div>
+        <div class="pf-pie">
+          <span class="pf-stack">BigQuery · SQL · Looker Studio</span>
+          <span class="pf-cta">Ver caso →</span>
+        </div>
+      </div>
+    </a>
+
+    <p class="pf-vacio" id="pf-vacio" hidden>Ningún caso coincide con la búsqueda.</p>
+  </section>
+
+  </div>
+
+</main>
+
+<script>
+(function () {
+  const filtros  = document.querySelectorAll('.pf-filtro');
+  const cards    = document.querySelectorAll('.pf-card');
+  const vacio    = document.getElementById('pf-vacio');
+  const contador = document.getElementById('pf-contador');
+  const buscador = document.getElementById('pf-buscador');
+
+  let categoria = 'todos';
+  let consulta  = '';
+
+  const normalizar = t => t.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+
+  cards.forEach(c => { c.dataset.texto = normalizar(c.innerText); });
+
+  function aplicar() {
+    let visibles = 0;
+
+    cards.forEach(card => {
+      const porCategoria = categoria === 'todos' || card.dataset.cat === categoria;
+      const porTexto     = !consulta || card.dataset.texto.includes(consulta);
+      const mostrar      = porCategoria && porTexto;
+
+      card.classList.toggle('oculta', !mostrar);
+      if (mostrar) visibles++;
+    });
+
+    vacio.hidden = visibles > 0;
+    contador.textContent = visibles === 1 ? '1 caso' : visibles + ' casos';
+  }
+
+  filtros.forEach(btn => btn.addEventListener('click', () => {
+    categoria = btn.dataset.cat;
+    filtros.forEach(b => b.classList.toggle('activo', b === btn));
+    aplicar();
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'portafolio_filtro', categoria: categoria });
+  }));
+
+  let temporizador;
+  buscador.addEventListener('input', () => {
+    consulta = normalizar(buscador.value.trim());
+    aplicar();
+
+    clearTimeout(temporizador);
+    if (consulta.length >= 3) {
+      temporizador = setTimeout(() => {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'portafolio_busqueda', termino: consulta });
+      }, 900);
+    }
+  });
+
+  cards.forEach((card, i) => card.addEventListener('click', () => {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'portafolio_proyecto_click',
+      slug: card.dataset.slug,
+      categoria: card.dataset.cat,
+      posicion: i + 1
+    });
+  }));
+})();
+</script>
+
+</body>
+</html>
