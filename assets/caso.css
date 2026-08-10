@@ -227,6 +227,33 @@
   border-radius: 3px;
 }
 
+/* ---------- CONSULTA DENTRO DEL CUERPO ----------
+   Mismo tratamiento que el overlay: la consulta corta se lee junto al párrafo
+   que la justifica, así que tiene que verse igual de bien en los dos sitios.
+*/
+.cs-body pre {
+  background: #0e0e0e;
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin: 0 0 20px;
+  overflow-x: auto;
+}
+
+.cs-body pre code {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: #cfcfcf;
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  white-space: pre;
+}
+
+/* highlight.js trae su propio fondo y relleno; el bloque manda sobre los dos */
+.cs-body pre code.hljs { background: none; padding: 0; }
+
 /* tabla simple */
 .cs-tabla { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
 .cs-tabla th, .cs-tabla td { text-align: left; padding: 9px 16px 9px 0; border-bottom: 1px solid var(--color-borde); vertical-align: top; }

@@ -30,7 +30,7 @@ GRILLA_PATH      = REPO_ROOT / "assets" / "grilla_template.html"
 REPOS_BASE       = Path.home() / "repositorios" / "proyectos"
 
 STATUS_PUBLICABLES = {"listo", "publicado"}
-CSS_VERSION        = 7          # subir al tocar caso.css
+CSS_VERSION        = 8          # subir al tocar caso.css
 
 # Los 15 temas del vault, en el mismo orden y con los mismos nombres que la lista
 # madre de vault/datablog/00-index.md. Si cambia alli, cambia aqui.

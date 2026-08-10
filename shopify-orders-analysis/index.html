@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
-  <link rel="stylesheet" href="../assets/caso.css?v=7" />
+  <link rel="stylesheet" href="../assets/caso.css?v=8" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -380,6 +380,11 @@ FROM
   function cerrar() {
     overlay.classList.remove('abierto');
     document.body.style.overflow = '';
+  }
+
+  // Las consultas del cuerpo se pintan al cargar; las del overlay, al abrirlo.
+  if (window.hljs) {
+    document.querySelectorAll('#cs-body pre code').forEach(c => hljs.highlightElement(c));
   }
 
   document.querySelectorAll('[data-sql]').forEach(b =>

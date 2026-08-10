@@ -130,6 +130,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     document.body.style.overflow = '';
   }
 
+  // Las consultas del cuerpo se pintan al cargar; las del overlay, al abrirlo.
+  if (window.hljs) {
+    document.querySelectorAll('#cs-body pre code').forEach(c => hljs.highlightElement(c));
+  }
+
   document.querySelectorAll('[data-sql]').forEach(b =>
     b.addEventListener('click', () => abrir(b.dataset.sql)));
 
