@@ -158,6 +158,55 @@
 
 .cs-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
 
+/* Bloque dentro de una sección: agrupa varias preguntas */
+.cs-body h3 {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+  margin: 46px 0 4px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-borde);
+  scroll-margin-top: 90px;
+}
+
+/* Pregunta del diagnóstico */
+.cs-body h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-texto);
+  margin: 30px 0 12px;
+  scroll-margin-top: 90px;
+}
+
+.cs-body h3 + h4 { margin-top: 18px; }
+
+.cs-body h4 code { font-size: 13.5px; background: none; padding: 0; }
+
+.cs-body h3 code { font-size: 13.5px; background: none; padding: 0; }
+
+/* Varios botones seguidos */
+.cs-botonera { display: flex; flex-wrap: wrap; gap: 0; }
+.cs-botonera .cs-boton { margin-right: 8px; }
+
+/* Una sola línea de código, fuera del overlay */
+.cs-inline-code {
+  background: #151515;
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  overflow-x: auto;
+}
+.cs-inline-code code {
+  background: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--color-texto);
+  white-space: pre;
+}
+
 .cs-body p,
 .cs-body li {
   color: var(--color-texto-cuerpo);
@@ -210,6 +259,54 @@
   transition: border-color .15s, color .15s;
 }
 .cs-boton:hover { border-color: #3d3d3d; color: var(--color-texto); }
+
+/* ---------- HALLAZGO ---------- */
+/* Lo que se descubrió en cada paso. Llevan etiqueta para que quien lee en
+   diagonal pueda seguir solo estos y quedarse con el caso entero. */
+.cs-hallazgo {
+  border-left: 2px solid #b8843f;
+  padding: 2px 0 2px 17px;
+  margin: 20px 0 22px;
+}
+
+.cs-hallazgo::before {
+  content: "Hallazgo";
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #b8843f;
+  margin-bottom: 7px;
+}
+
+.cs-hallazgo p {
+  color: var(--color-texto);
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.cs-hallazgo p:last-child { margin-bottom: 0; }
+
+/* ---------- PREGUNTA DESTACADA ---------- */
+/* La tesis del caso dentro del cuerpo. Más peso que un aviso: es lo que el
+   lector debe recordar si solo lee una frase. */
+.cs-pregunta-bloque {
+  border-left: 2px solid var(--color-acento);
+  padding: 3px 0 3px 20px;
+  margin: 26px 0 28px;
+}
+
+.cs-pregunta-bloque p {
+  color: var(--color-texto);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+.cs-pregunta-bloque p:last-child { margin-bottom: 0; }
 
 /* ---------- OVERLAY DE CÓDIGO ---------- */
 .cs-overlay {
@@ -272,6 +369,52 @@
   padding: 0;
 }
 
+/* highlight.js trae su propio fondo y relleno; el panel manda sobre los dos */
+.cs-panel pre code.hljs {
+  background: none;
+  padding: 0;
+}
+
+/* ---------- FLUJO DE DATOS ---------- */
+.cs-flujo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--color-borde);
+  border-bottom: 1px solid var(--color-borde);
+  padding: 18px 0;
+  margin: 26px 0 30px;
+}
+
+.cs-flujo-paso {
+  position: relative;
+  padding: 0 26px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cs-flujo-paso:not(:last-child)::after {
+  content: '\2192';
+  position: absolute;
+  right: 8px;
+  top: 0;
+  color: #4a4a4a;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cs-flujo-tool {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.cs-flujo-dato {
+  font-size: 12.5px;
+  color: var(--color-texto-suave);
+  line-height: 1.45;
+}
+
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 1080px) {
   .cs-wrap { padding: 30px 32px 80px; }
@@ -286,4 +429,13 @@
   .cs-pregunta { font-size: 16px; }
   .cs-metricas { gap: 26px; }
   .cs-overlay { padding: 16px; }
+
+  .cs-flujo { grid-template-columns: 1fr; gap: 18px; }
+  .cs-flujo-paso { padding: 0 0 0 20px; }
+  .cs-flujo-paso:not(:last-child)::after {
+    content: '\2193';
+    right: auto;
+    left: 3px;
+    top: 22px;
+  }
 }

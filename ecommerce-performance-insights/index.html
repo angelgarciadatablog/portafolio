@@ -4,11 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ecommerce Performance Insights - Portafolio - Angel García</title>
-  <meta name="description" content="¿Los productos más vistos son los que generan más ingresos? Embudo por producto reconstruido desde el export de GA4 en BigQuery." />
+  <meta name="description" content="Auditoría en BigQuery del export de GA4 de la Google Merchandise Store, para saber qué preguntas de negocio aguanta la medición actual y cuáles no." />
   <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
-  <link rel="stylesheet" href="../assets/caso.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="../assets/caso.css?v=7" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -39,84 +40,1253 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a class="cs-volver" href="../">&larr; Portafolio</a>
 
   <header class="cs-head">
-    <div class="cs-cat">Analítica digital</div>
+    <div class="cs-cat">Google Analytics · Google Cloud · BigQuery · SQL</div>
     <h1>Ecommerce Performance Insights</h1>
-    <p class="cs-pregunta">¿Los productos más vistos son los que generan más ingresos?</p>
+    <p class="cs-pregunta">¿Puede esta tienda saber qué productos convierten mejor, con la medición que tiene hoy?</p>
 
-    <div class="cs-acciones">
-      <a class="cs-accion" href="https://lookerstudio.google.com/reporting/5e8d97c8-e7c4-4c62-93f5-0d7396d216d7" target="_blank" data-destino="dashboard">Ver dashboard <span>&#8599;</span></a>
-      <a class="cs-accion" href="https://github.com/angelgarciadatablog/ecommerce-performance-insights" target="_blank" data-destino="repo">Ver repositorio <span>&#8599;</span></a>
-      <a class="cs-accion" href="https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset?hl=es-419" target="_blank" data-destino="dataset">Documentación del dataset <span>&#8599;</span></a>
-    </div>
+    <div class="cs-acciones"><a class="cs-accion" href="https://github.com/angelgarciadatablog/ecommerce-performance-insights" target="_blank" data-destino="repo">Ver repositorio <span>&#8599;</span></a><a class="cs-accion" href="https://developers.google.com/analytics/bigquery/web-ecommerce-demo-dataset?hl=es-419" target="_blank" data-destino="dataset">Documentación del dataset <span>&#8599;</span></a></div>
 
-    <div class="cs-metricas">
-      <div class="cs-metrica"><b>4.3M</b><span>eventos</span></div>
-      <div class="cs-metrica"><b>92</b><span>tablas diarias</span></div>
-      <div class="cs-metrica"><b>3</b><span>meses</span></div>
-    </div>
+    <div class="cs-metricas"><div class="cs-metrica"><b>4.3M</b><span>eventos</span></div><div class="cs-metrica"><b>92</b><span>tablas diarias</span></div><div class="cs-metrica"><b>3</b><span>meses</span></div></div>
   </header>
 
   <div class="cs-layout">
 
     <div>
-      <div class="cs-video">
-        <div class="cs-video-vacio">video del proyecto</div>
-      </div>
+      <div class="cs-video"><div class="cs-video-vacio">video del proyecto</div></div>
 
       <article class="cs-body" id="cs-body">
 
-        <h2>El problema</h2>
-        <p>En una tienda con más de mil productos, la atención y el dinero no se reparten igual. Marketing decide dónde invertir mirando el tráfico, pero el tráfico no paga: paga la conversión.</p>
-        <p>La pregunta concreta: <strong>¿coinciden los productos y categorías más vistos con los que más ingresos generan?</strong> Y donde no coinciden, ¿qué habría que hacer con esa diferencia?</p>
 
-        <h2>Los datos</h2>
-        <table class="cs-tabla">
-          <tr><th>Origen</th><td><code>bigquery-public-data.ga4_obfuscated_sample_ecommerce</code></td></tr>
-          <tr><th>Qué es</th><td>Export crudo de GA4 de la Google Merchandise Store. Datos reales ofuscados, publicados por Google</td></tr>
-          <tr><th>Periodo</th><td>1 nov 2020 &rarr; 31 ene 2021</td></tr>
-          <tr><th>Volumen</th><td><strong>4,295,584 eventos</strong> &middot; 17 tipos de evento &middot; 270,154 usuarios</td></tr>
-          <tr><th>Estructura</th><td>92 tablas diarias (<code>events_20201101</code> &hellip; <code>events_20210131</code>)</td></tr>
-          <tr><th>Grano</th><td>Un evento por fila, con los productos anidados en un <code>ARRAY</code></td></tr>
-          <tr><th>Herramientas</th><td>GA4 &middot; BigQuery &middot; SQL &middot; Looker Studio</td></tr>
-        </table>
-        <div class="cs-aviso">
-          <p>Es un dataset público de demostración, no un cliente. Los hallazgos son reales sobre esa tienda, pero el caso demuestra método, no una consultoría entregada.</p>
-        </div>
+<h2>1. El problema</h2>
+<p>La Google Merchandise Store (https://shop.merch.google/) vende merchandising de Google, Android y YouTube. </p>
+<p>Las preguntas que llevan a mirar estos datos son tres:
+- ¿Cuál es la conversión del ecommerce?
+- ¿Los productos que más facturan en volumen son los que mejor convierten?
+- ¿Qué categoría convierte mejor? ¿Es la que más factura?</p>
+<p>Para poder responder estas preguntas se hace dos cosas. Primero, se <strong>audita la tabla de eventos</strong> para saber qué se puede medir y qué no. Después, con lo que sobrevive a esa auditoría, se intenta responder las preguntas.</p>
+<p>Sin embargo, para poder responder a las preguntas de negocio, no podemos ir con la premisa que los datos vienen limpios, tenemos que responder antes una pregunta importante para poder analizar los datos:</p>
+<div class="cs-pregunta-bloque">
+<p>¿Puede esta tienda saber qué productos convierten mejor, con la medición que tiene hoy?
+</p>
+</div>
 
-        <h2>El proceso</h2>
-        <p>El reto no es el análisis, es que <strong>el export de GA4 no se puede analizar tal como viene</strong>: cada fila es un evento y los productos viven anidados dentro. Un solo evento de compra puede contener cinco productos distintos.</p>
-        <ol>
-          <li><strong>Desanidar</strong> el array <code>items</code> con <code>UNNEST</code>, para pasar de "un evento" a "un producto dentro de un evento".</li>
-          <li><strong>Convertir eventos en métricas</strong> con <code>CASE WHEN event_name = …</code> + <code>SUM</code>. Aquí aparece el embudo: cada etapa es un nombre de evento distinto sobre la misma fila.</li>
-          <li><strong>Recorrer las 92 tablas diarias</strong> con <code>_TABLE_SUFFIX</code> en vez de apuntar a una tabla fija.</li>
-          <li><strong>Materializar el resultado</strong> en una tabla maestra de 51,030 filas con grano producto &times; día.</li>
-        </ol>
-        <p>El paso 4 es la decisión de arquitectura más importante del proyecto: sin ella, cada filtro del dashboard vuelve a escanear millones de eventos, con el coste y la latencia que eso implica.</p>
+<h2>2. Los datos</h2>
+<table class="cs-tabla">
 
-        <button class="cs-boton" data-sql="sql-principal">Ver la consulta SQL</button>
+<tbody>
+<tr>
+<th>Origen</th>
+<td><code>bigquery-public-data.ga4_obfuscated_sample_ecommerce</code></td>
+</tr>
+<tr>
+<th>Qué es</th>
+<td>Datos ficticios de GA4 de la Google Merchandise Store publicados por Google</td>
+</tr>
+<tr>
+<th>Grano</th>
+<td>Un evento por fila, con los parámetros anidados en un <code>ARRAY</code></td>
+</tr>
+<tr>
+<th>Periodo</th>
+<td>1 nov 2020 → 31 ene 2021</td>
+</tr>
+<tr>
+<th>Volumen</th>
+<td><strong>4,295,584 eventos</strong> , 17 tipos de evento , 270,154 usuarios</td>
+</tr>
+<tr>
+<th>Estructura</th>
+<td>92 tablas diarias (<code>events_20201101</code> … <code>events_20210131</code>)</td>
+</tr>
+<tr>
+<th>Herramientas</th>
+<td>GA4, BigQuery, SQL</td>
+</tr>
+</tbody>
+</table>
+<div class="cs-aviso">
+<p>Es un dataset público de demostración, no un cliente. Todo lo que hay en esta página se puede reproducir sin acceso a ningún dato privado.
+</p>
+</div>
+<h2>3. Diagnóstico</h2>
+<p>Antes de armar un reporte debemos tener un contexto de los datos y del negocio. Esto debido a que no siempre los datos vienen limpios y además es necesario saber cómo están estructurados sus datos. </p>
+<p>La documentación del esquema de la tabla que vamos a analizar lo encontramos en el siguiente artículo: https://support.google.com/analytics/answer/  . Sin embargo, esto solo nos dice como está estructurado es esquema. Lo que debemos revisar son los datos específicos del negocio.</p>
+<h3>Los eventos</h3>
+<h4>3.1 ¿Qué está midiendo la tienda?</h4>
+<p>Para saber si la tienda puede responder la pregunta de negocio principal, primero hay que ver qué mide. Y conviene no llegar buscando eventos concretos: en GA4 los nombres de evento los decide quien implementó la medición, así que no hay garantía de que existan los estándar, ni de que los que existan hagan lo que su nombre sugiere.</p>
+<p>Lo que se pide es el mapa completo, sin filtrar.</p>
+<pre><code class="language-sql">SELECT
+  event_name,
+  COUNT(*) AS eventos
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+GROUP BY event_name
+ORDER BY eventos DESC
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>event_name</th>
+<th>eventos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>page_view</td>
+<td>1,350,428</td>
+</tr>
+<tr>
+<td>user_engagement</td>
+<td>1,058,721</td>
+</tr>
+<tr>
+<td>scroll</td>
+<td>493,072</td>
+</tr>
+<tr>
+<td><strong>view_item</strong></td>
+<td><strong>386,068</strong></td>
+</tr>
+<tr>
+<td>session_start</td>
+<td>354,970</td>
+</tr>
+<tr>
+<td>first_visit</td>
+<td>257,462</td>
+</tr>
+<tr>
+<td>view_promotion</td>
+<td>190,104</td>
+</tr>
+<tr>
+<td><strong>add_to_cart</strong></td>
+<td><strong>58,543</strong></td>
+</tr>
+<tr>
+<td><strong>begin_checkout</strong></td>
+<td><strong>38,757</strong></td>
+</tr>
+<tr>
+<td>select_item</td>
+<td>31,007</td>
+</tr>
+<tr>
+<td>view_search_results</td>
+<td>26,172</td>
+</tr>
+<tr>
+<td>add_shipping_info</td>
+<td>19,722</td>
+</tr>
+<tr>
+<td>add_payment_info</td>
+<td>13,899</td>
+</tr>
+<tr>
+<td>select_promotion</td>
+<td>9,450</td>
+</tr>
+<tr>
+<td><strong>purchase</strong></td>
+<td><strong>5,692</strong></td>
+</tr>
+<tr>
+<td>click</td>
+<td>1,446</td>
+</tr>
+<tr>
+<td>view_item_list</td>
+<td><strong>71</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Diecisiete tipos de evento, con los nombres estándar de ecommerce de GA4. Y entre ellos está el embudo entero: <code>view_item</code> → <code>add_to_cart</code> → <code>begin_checkout</code> → <code>purchase</code>.</p>
+<p>Eso es más de lo que suele haber. Sobre el papel, la tienda tiene lo que hace falta para responder la pregunta.</p>
+<h4>3.2 ¿Qué eventos traen productos?</h4>
+<p>La pregunta es sobre productos, así que hay que construir el universo de productos antes de medir nada. Y para eso hay que saber de dónde salen: en GA4 los productos no son columnas, viajan anidados en un <code>ARRAY</code> llamado <code>items</code> que <strong>no todos los eventos llevan</strong>.</p>
+<p>Hasta el momento podemos utilizar<code>item_id</code> como la clave del producto.</p>
+<pre><code class="language-sql">SELECT
+  event_name,
+  COUNT(*)                  AS filas,
+  COUNT(DISTINCT i.item_id) AS productos_unicos
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  AND i.item_id IS NOT NULL AND i.item_id NOT IN ('(not set)', '')
+GROUP BY event_name
+ORDER BY filas DESC
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>event_name</th>
+<th>filas</th>
+<th>productos_unicos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>view_item</td>
+<td>2,748,237</td>
+<td>426</td>
+</tr>
+<tr>
+<td>add_to_cart</td>
+<td>667,282</td>
+<td>805</td>
+</tr>
+<tr>
+<td>select_item</td>
+<td>326,644</td>
+<td>640</td>
+</tr>
+<tr>
+<td>begin_checkout</td>
+<td>76,047</td>
+<td>796</td>
+</tr>
+<tr>
+<td>view_promotion</td>
+<td>16,843</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>purchase</strong></td>
+<td>15,555</td>
+<td><strong>809</strong></td>
+</tr>
+<tr>
+<td>select_promotion</td>
+<td>975</td>
+<td>1</td>
+</tr>
+<tr>
+<td>view_item_list</td>
+<td>508</td>
+<td>63</td>
+</tr>
+</tbody>
+</table>
+<p>Ocho eventos traen productos, no los cuatro del embudo. <code>select_item</code> aporta 640 y hasta <code>view_promotion</code> trae uno. Si el universo se sacara solo del embudo se dejarían fuera eventos que sí identifican productos.</p>
+<div class="cs-hallazgo">
+<p>Hay 426 productos en las vistas y **809 en las compras**. Se compraron el doble de productos de los que se vieron, y eso no puede ser: nadie compra lo que no está en el catálogo. Uno de los dos números no está contando productos.
+</p>
+</div>
+<h3>Los productos</h3>
+<h4>3.3 ¿Cuántos productos hay en total?</h4>
+<p>Aun con la contradicción anterior sin resolver, el conteo global es el que fija la base sobre la que se trabaja.</p>
+<pre><code class="language-sql">SELECT COUNT(DISTINCT i.item_id) AS productos_en_total
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  AND i.item_id IS NOT NULL AND i.item_id NOT IN ('(not set)', '')
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>productos en total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1,393</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Mil trescientos noventa y tres productos con actividad en tres meses. Es una cifra alta para una tienda de merchandising, pero no imposible — y de momento no hay con qué contrastarla.</p>
+<p>Conviene dejar dicho qué es y qué no es este número. <strong>No es el catálogo de la tienda</strong>: solo aparece lo que tuvo algún evento en la ventana analizada. El stock es dinámico, así que un producto que existía y nadie miró no está aquí, y no hay forma de saberlo desde estos datos. Como no hay tabla de dimensión de productos, esto es lo más cerca que se puede estar del catálogo.</p>
+<h4>3.4 ¿Están completos esos productos?</h4>
+<p>Un producto necesita como mínimo un identificador y un nombre. Toca comprobar que los 1,393 tengan las dos cosas.</p>
+<p>No basta con preguntar si tienen nombre alguna vez: un identificador puede traerlo en una fila y no traerlo en las otras diez mil, y eso ya contaría como "tiene nombre". Hay que separar los tres casos.</p>
+<pre><code class="language-sql">WITH por_id AS (
+  SELECT
+    i.item_id AS id,
+    COUNTIF(i.item_name IS NULL OR i.item_name IN ('(not set)',''))          AS sin_nombre,
+    COUNTIF(i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')) AS con_nombre
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND i.item_id IS NOT NULL AND i.item_id NOT IN ('(not set)','')
+  GROUP BY id
+)
+SELECT
+  COUNT(*)                                   AS ids_totales,
+  COUNTIF(sin_nombre = 0)                    AS siempre_con_nombre,
+  COUNTIF(sin_nombre &gt; 0 AND con_nombre &gt; 0) AS a_veces_sin_nombre,
+  COUNTIF(con_nombre = 0)                    AS nunca_con_nombre
+FROM por_id
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>ids totales</th>
+<th>siempre con nombre</th>
+<th>a veces sin nombre</th>
+<th>nunca con nombre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1,393</td>
+<td><strong>1,392</strong></td>
+<td><strong>1</strong></td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>La comprobación inversa —agrupar por <code>item_name</code> y contar los que no traen identificador— no encuentra ninguno: todos los nombres vienen siempre con su id.</p>
+<div class="cs-hallazgo">
+<p>1,392 identificadores traen nombre siempre. Uno lo trae en una sola de sus 17,818 filas — y ese uno no es un producto: es `fall_campaign`, una campaña de marketing que entra por los eventos de promoción.
+</p>
+</div>
+<p>Ninguno se queda sin nombre del todo, así que el filtro no descarta ningún producto. Lo que descarta la comprobación es otra cosa: <strong>una entidad que nunca debió estar en la base</strong>.</p>
+<p>Entró porque en la pregunta 2 se admitió cualquier evento con <code>items</code>, y los de promoción no traen productos sino campañas. Es la decisión de alcance que faltaba declarar: <strong>una promoción no es un producto</strong>. Fuera <code>view_promotion</code> y <code>select_promotion</code>, la base queda en <strong>1,392</strong>.</p>
+<h4>3.5 ¿<code>item_id</code> e <code>item_name</code> cuentan lo mismo?</h4>
+<p>Con los eventos de promoción fuera, la base baja a <strong>1,392 identificadores</strong>. Sobre esa base ya limpia toca la comprobación siguiente: hay un segundo campo que también parece identificar productos, y si los dos identifican lo mismo tienen que dar el mismo número.</p>
+<pre><code class="language-sql">SELECT
+  COUNT(DISTINCT i.item_id)   AS identificadores,
+  COUNT(DISTINCT i.item_name) AS nombres
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  AND event_name NOT IN ('view_promotion', 'select_promotion')
+  AND i.item_id   IS NOT NULL AND i.item_id   NOT IN ('(not set)', '')
+  AND i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)', '')
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>identificadores</th>
+<th>nombres</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1,392</strong></td>
+<td><strong>429</strong></td>
+</tr>
+</tbody>
+</table>
+<p>No cuentan lo mismo. Como cada fila es una pareja de identificador y nombre, comparar los dos totales ya dice de qué lado se rompe la relación:</p>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>Comparación</th>
+<th>Qué se deduce</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Más ids que nombres</td>
+<td>Algún <strong>nombre</strong> tiene varios ids</td>
+</tr>
+<tr>
+<td>Más nombres que ids</td>
+<td>Algún <strong>id</strong> tiene varios nombres</td>
+</tr>
+<tr>
+<td>Iguales</td>
+<td><strong>Nada</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Así que <code>item_id</code> no identifica productos: identifica alguna otra cosa, más fina, que se repite dentro del mismo producto.</p>
+<div class="cs-hallazgo">
+<p>La base de 1,392 nunca fueron productos. `item_name` sí se comporta como clave —no se multiplica— y da **429**. Esa es la nueva base de análisis.
+</p>
+</div>
+<p>Se ve mejor con un producto cualquiera de los 416:</p>
+<pre><code class="language-sql">SELECT DISTINCT i.item_name, i.item_id
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  AND i.item_name = 'Google Land &amp; Sea French Terry Sweatshirt'
+ORDER BY i.item_id
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>item_name</th>
+<th>item_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google Land &amp; Sea French Terry Sweatshirt</td>
+<td>9199117</td>
+</tr>
+<tr>
+<td>Google Land &amp; Sea French Terry Sweatshirt</td>
+<td>9199201</td>
+</tr>
+<tr>
+<td>Google Land &amp; Sea French Terry Sweatshirt</td>
+<td>9199204</td>
+</tr>
+<tr>
+<td>Google Land &amp; Sea French Terry Sweatshirt</td>
+<td>9199205</td>
+</tr>
+<tr>
+<td>Google Land &amp; Sea French Terry Sweatshirt</td>
+<td>GGCOGXXX1609</td>
+</tr>
+<tr>
+<td>Google Land &amp; Sea French Terry Sweatshirt</td>
+<td>GGOEGXXX1615</td>
+</tr>
+<tr>
+<td>…</td>
+<td><em>hasta 14</em></td>
+</tr>
+</tbody>
+</table>
+<p>Una sudadera, catorce identificadores. Agrupando por <code>item_id</code> serían catorce productos en el análisis; agrupando por nombre, uno.</p>
+<h4>3.6 ¿Están los 429 productos en los eventos que vamos a analizar?</h4>
+<p>La pregunta de negocio necesita, para cada producto, cuánta gente lo vio y cuánta lo compró. De poco sirve tener 429 productos si no aparecen en las dos puntas del embudo.</p>
+<pre><code class="language-sql">WITH por_producto AS (
+  SELECT
+    i.item_name AS producto,
+    MAX(IF(event_name = 'view_item',      1, 0)) AS vista,
+    MAX(IF(event_name = 'add_to_cart',    1, 0)) AS carrito,
+    MAX(IF(event_name = 'begin_checkout', 1, 0)) AS checkout,
+    MAX(IF(event_name = 'purchase',       1, 0)) AS compra
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name IN ('view_item','add_to_cart','begin_checkout','purchase')
+    AND i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')
+  GROUP BY producto
+)
+SELECT vista, carrito, checkout, compra, COUNT(*) AS productos
+FROM por_producto
+GROUP BY vista, carrito, checkout, compra
+ORDER BY productos DESC
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th style="text-align: center;">vista</th>
+<th style="text-align: center;">carrito</th>
+<th style="text-align: center;">checkout</th>
+<th style="text-align: center;">compra</th>
+<th>productos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><strong>379</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td>24</td>
+</tr>
+<tr>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><strong>8</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td>6</td>
+</tr>
+<tr>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✓</td>
+<td>6</td>
+</tr>
+<tr>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td>4</td>
+</tr>
+<tr>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✓</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>379 de 429 recorren el embudo entero. Otros 24 se quedan a mitad —se ven, se añaden al carrito y nunca se compran—, y eso es normal en cualquier tienda.</p>
+<p>Pero hay una fila que no puede existir: <strong>8 productos con compra y sin vista</strong>. Nadie compra algo que no vio.</p>
+<div class="cs-hallazgo">
+<p>**8 productos aparecen comprados sin haberse visto nunca.** Eso no puede ocurrir: nadie compra lo que no vio. O falta la vista, o el producto se llama distinto en cada mitad del embudo.
+</p>
+</div>
 
-        <h2>Hallazgos</h2>
-        <ol>
-          <li><strong>Vistas que no convierten durante la campaña.</strong> Entre el 26 de diciembre y el 17 de enero las vistas de producto subieron con fuerza, sin una subida proporcional en ventas. La campaña trajo atención, no compradores.</li>
-          <li><strong>Categorías con mucho tráfico y cero ingresos.</strong> Men’s T-Shirts, Mug, Sale, Clearance, Eco-friendly, Small goods y Backpacks aparecen en el top 10 de productos más vistos y no generan ingresos.</li>
-          <li><strong>La categoría más rentable no es la más vista.</strong> Apparel lidera en ingresos pero no en vistas: genera el dinero desde una posición de baja exposición.</li>
-        </ol>
+<h4>3.7 ¿Con qué productos nos quedamos?</h4>
+<p>Los 8 imposibles no se pueden analizar: sin vistas no hay denominador, así que no tienen conversión. Antes de excluirlos conviene verlos, porque un producto que se vende sin registrar visitas es un problema de medición que alguien debería arreglar.</p>
+<pre><code class="language-sql">WITH por_producto AS (
+  SELECT
+    i.item_name AS producto,
+    COUNTIF(event_name = 'view_item') AS vistas,
+    COUNTIF(event_name = 'purchase')  AS compras
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name IN ('view_item','add_to_cart','begin_checkout','purchase')
+    AND i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')
+  GROUP BY producto
+)
+SELECT producto, vistas, compras
+FROM por_producto
+WHERE vistas = 0 AND compras &gt; 0
+ORDER BY compras DESC
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>producto</th>
+<th>vistas</th>
+<th>compras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google F/C Longsleeve Charcoal</td>
+<td>0</td>
+<td>164</td>
+</tr>
+<tr>
+<td>Google Unisex Eco Tee Black</td>
+<td>0</td>
+<td>156</td>
+</tr>
+<tr>
+<td>Google F/C Longsleeve Ash</td>
+<td>0</td>
+<td>143</td>
+</tr>
+<tr>
+<td>Womens Google Striped LS</td>
+<td>0</td>
+<td>89</td>
+</tr>
+<tr>
+<td>Unisex Google Pocket Tee Grey</td>
+<td>0</td>
+<td>52</td>
+</tr>
+<tr>
+<td>Google Summer19 Crew Grey</td>
+<td>0</td>
+<td>24</td>
+</tr>
+<tr>
+<td>Youth Jumbo Print Tee White</td>
+<td>0</td>
+<td>15</td>
+</tr>
+<tr>
+<td>Unisex Google Jumbo Print Tee White</td>
+<td>0</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>164 compras sin una sola visita registrada, y las ocho son ropa.</p>
+<p>La hipótesis más razonable es que en la mitad alta del embudo estos productos se llamen de otra forma —<code>Womens Google Striped LS</code> frente a algún <code>Google Women's Striped L/S</code>— y que el nombre, igual que antes el identificador, tampoco los una. Con estos datos no se puede confirmar: haría falta el catálogo para saber si dos nombres son el mismo artículo.</p>
+<div class="cs-hallazgo">
+<p>**8 productos aparecen comprados sin haberse visto nunca.** Queda como limitación declarada, no como problema resuelto: la causa probable es que cambien de nombre entre etapas, pero no hay forma de comprobarlo desde el dato.
+</p>
+</div>
+<p>Aun así el nombre sigue siendo la clave. Con <code>item_id</code> el problema no sería de ocho productos sino de 416, y además inventaría productos que no existen. Cambiar de clave no arregla esto: lo empeora.</p>
+<p>Para el análisis se quitan, y la base queda así:</p>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>productos</th>
+<th>analizables</th>
+<th>excluidos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>429</td>
+<td><strong>421</strong></td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>Esas 645 compras —un 4% del total— quedan fuera de cualquier cálculo por producto. No es un error del análisis, es una limitación de los datos, y se declara.</p>
+<h3>Las categorías</h3>
+<h4>3.8 ¿Cada producto tiene una sola categoría?</h4>
+<p>Las preguntas de negocio no son solo por producto, también por categoría. Lo ideal es que cada producto tenga una y solo una.</p>
+<p>Lo natural sería empezar descartando los productos sin categoría, pero todavía no se puede: eso daría por hecho que existe una categoría de catálogo y que sabemos dónde está. En este punto <code>item_category</code> es un campo del que no sabemos nada. </p>
+<p>Primero hay que comprobar si es fiable; el descarte viene después y depende de lo que salga.</p>
+<pre><code class="language-sql">WITH base AS (
+  SELECT DISTINCT i.item_name AS producto
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'view_item'
+    AND i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')
+),
+cat AS (
+  SELECT i.item_name AS producto, COUNT(DISTINCT i.item_category) AS categorias
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name IN ('view_item','add_to_cart','begin_checkout','purchase')
+    AND i.item_name     IS NOT NULL AND i.item_name     NOT IN ('(not set)','')
+    AND i.item_category IS NOT NULL AND i.item_category NOT IN ('(not set)','')
+  GROUP BY producto
+)
+SELECT categorias, COUNT(*) AS productos
+FROM cat JOIN base USING (producto)
+GROUP BY categorias
+ORDER BY categorias
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>categorías</th>
+<th>productos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><strong>1</strong></td>
+</tr>
+<tr>
+<td>2 a 4</td>
+<td>28</td>
+</tr>
+<tr>
+<td>5 a 7</td>
+<td>130</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td><strong>71</strong></td>
+</tr>
+<tr>
+<td>9 a 12</td>
+<td>166</td>
+</tr>
+<tr>
+<td>13 a 17</td>
+<td>24</td>
+</tr>
+</tbody>
+</table>
+<div class="cs-hallazgo">
+<p>Solo **1 de 421** productos tiene una única categoría. Lo habitual son ocho, y uno llega a diecisiete. Tal cual está, `item_category` no sirve para agrupar productos.
+</p>
+</div>
+<h4>3.9 ¿Ocurre lo mismo en todos los eventos?</h4>
+<p>Un campo puede comportarse distinto según quién lo escribe. Antes de descartarlo conviene mirar evento por evento.</p>
+<pre><code class="language-sql">SELECT
+  event_name,
+  COUNT(*)                AS productos,
+  COUNTIF(categorias = 1) AS con_una_sola,
+  MAX(categorias)         AS maximo
+FROM (
+  SELECT event_name, i.item_name AS producto, COUNT(DISTINCT i.item_category) AS categorias
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name IN ('view_item','add_to_cart','begin_checkout','purchase')
+    AND i.item_name     IS NOT NULL AND i.item_name     NOT IN ('(not set)','')
+    AND i.item_category IS NOT NULL AND i.item_category NOT IN ('(not set)','')
+  GROUP BY event_name, producto
+)
+GROUP BY event_name
+ORDER BY productos DESC
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>evento</th>
+<th>productos</th>
+<th>con una sola categoría</th>
+<th>máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>view_item</code></td>
+<td>420</td>
+<td>6</td>
+<td>17</td>
+</tr>
+<tr>
+<td><code>add_to_cart</code></td>
+<td>412</td>
+<td>10</td>
+<td>15</td>
+</tr>
+<tr>
+<td><code>purchase</code></td>
+<td>386</td>
+<td><strong>377</strong></td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>begin_checkout</code></td>
+<td>382</td>
+<td><strong>373</strong></td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>En <code>purchase</code> y <code>begin_checkout</code> la categoría sí es única por producto. En <code>view_item</code> y <code>add_to_cart</code> casi nunca. </p>
+<p>Para saber por qué hay que mirar qué guarda de manera más frecuente cada uno:</p>
+<pre><code class="language-sql">SELECT
+  event_name,
+  i.item_category,
+  COUNT(*) AS filas
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  AND event_name IN ('view_item','add_to_cart','begin_checkout','purchase')
+  AND i.item_category IS NOT NULL AND i.item_category NOT IN ('(not set)','')
+GROUP BY event_name, i.item_category
+QUALIFY ROW_NUMBER() OVER (PARTITION BY event_name ORDER BY filas DESC) &lt;= 2
+ORDER BY filas DESC
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>evento</th>
+<th>item_category</th>
+<th>filas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>view_item</code></td>
+<td><code>Home/Apparel/Men's / Unisex/</code></td>
+<td>462,115</td>
+</tr>
+<tr>
+<td><code>view_item</code></td>
+<td><code>Home/Sale/</code></td>
+<td>409,702</td>
+</tr>
+<tr>
+<td><code>add_to_cart</code></td>
+<td><code>Home/Apparel/Men's / Unisex/</code></td>
+<td>118,125</td>
+</tr>
+<tr>
+<td><code>add_to_cart</code></td>
+<td><code>Home/Sale/</code></td>
+<td>111,599</td>
+</tr>
+<tr>
+<td><code>begin_checkout</code></td>
+<td><code>Apparel</code></td>
+<td>21,026</td>
+</tr>
+<tr>
+<td><code>begin_checkout</code></td>
+<td><code>New</code></td>
+<td>7,524</td>
+</tr>
+<tr>
+<td><code>purchase</code></td>
+<td><code>Apparel</code></td>
+<td>4,984</td>
+</tr>
+<tr>
+<td><code>purchase</code></td>
+<td><code>Campus Collection</code></td>
+<td>1,497</td>
+</tr>
+</tbody>
+</table>
+<p><code>view_item</code> y <code>add_to_cart</code> guardan <strong>la ruta de navegación</strong> por la que llegó el usuario. Un producto alcanzable desde ofertas, desde hombre y desde Apparel acumula tres rutas, y ocho de media. <code>begin_checkout</code> y <code>purchase</code> guardan <strong>una etiqueta plana</strong>.</p>
+<p>Queda una duda razonable antes de fiarse de la etiqueta plana: en la página de compra no hay ruta de navegación, así que quizá ese valor no describa el producto sino la página. Si fuera así, todos los productos de una misma compra tendrían la misma categoría.</p>
+<pre><code class="language-sql">WITH productos_comprados AS (
+  SELECT
+    CONCAT(user_pseudo_id, '-', CAST(event_timestamp AS STRING)) AS compra,
+    i.item_category                                              AS categoria
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'purchase'
+    AND i.item_category IS NOT NULL AND i.item_category NOT IN ('(not set)','')
+),
+por_compra AS (
+  SELECT
+    compra,
+    COUNT(*)                  AS productos,
+    COUNT(DISTINCT categoria) AS categorias
+  FROM productos_comprados
+  GROUP BY compra
+)
+SELECT
+  COUNT(*)                AS compras_con_2_o_mas_productos,
+  COUNTIF(categorias = 1) AS todos_la_misma_categoria,
+  COUNTIF(categorias &gt; 1) AS con_categorias_distintas,
+  MAX(categorias)         AS maximo_en_una_compra
+FROM por_compra
+WHERE productos &gt;= 2
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>compras con 2+ productos</th>
+<th>mima_categoría</th>
+<th>categorías_distintas</th>
+<th>máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3,376</td>
+<td>608</td>
+<td><strong>2,768</strong></td>
+<td>12</td>
+</tr>
+</tbody>
+</table>
+<p>No es de la página: 2,768 compras llevan categorías distintas dentro del mismo evento, y una llega a doce. Si el valor viniera de la página, las 3,399 tendrían una sola.</p>
+<div class="cs-hallazgo">
+<p>`item_category` guarda **dos cosas distintas con el mismo nombre**. En `view_item` y `add_to_cart`, la ruta de navegación del usuario. En `begin_checkout` y `purchase`, la categoría del catálogo — y es del producto, no de la página.
+</p>
+</div>
 
-        <h2>Qué habilita decidir</h2>
-        <p>Al ser un dataset público no hay un negocio real al otro lado, así que el caso no cierra con decisiones tomadas sino con las que el análisis pone sobre la mesa.</p>
-        <ol>
-          <li><strong>Reasignar inversión publicitaria</strong> hacia los productos con tráfico alto y conversión baja, o retirarla de ellos. El análisis identifica cuáles son, uno por uno.</li>
-          <li><strong>Investigar la causa del tráfico sin conversión</strong> antes de tocar nada: venta por otro canal, rotura de inventario o precio. Son tres causas con tres respuestas opuestas.</li>
-          <li><strong>Subir la visibilidad de Apparel</strong>, que ya convierte mejor: portada, banners, correos, campañas pagadas. Es la palanca con el retorno más probable porque no hay que arreglar nada, solo exponer más lo que funciona.</li>
-        </ol>
+<h4>3.10 ¿Todos los productos tienen categoría de catálogo?</h4>
+<p>La categoría buena solo aparece en <code>begin_checkout</code> y <code>purchase</code>. Un producto que se ve pero nunca llega a esas etapas no la tiene en ninguna parte.</p>
+<pre><code class="language-sql">WITH analizables AS (
+  SELECT DISTINCT i.item_name AS producto
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'view_item'
+    AND i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')
+),
+con_categoria AS (
+  SELECT DISTINCT i.item_name AS producto
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name IN ('begin_checkout','purchase')
+    AND i.item_name     IS NOT NULL AND i.item_name     NOT IN ('(not set)','')
+    AND i.item_category IS NOT NULL AND i.item_category NOT IN ('(not set)','')
+)
+SELECT
+  (SELECT COUNT(*) FROM analizables)                                     AS productos_analizables,
+  (SELECT COUNT(*) FROM analizables JOIN con_categoria USING (producto)) AS con_categoria_de_catalogo,
+  (SELECT COUNT(*) FROM analizables
+   WHERE producto NOT IN (SELECT producto FROM con_categoria))           AS sin_categoria_de_catalogo
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>productos analizables</th>
+<th>con categoría de catálogo</th>
+<th>sin categoría de catálogo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>421</td>
+<td><strong>390</strong></td>
+<td><strong>31</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="cs-hallazgo">
+<p>31 de los 421 productos no tienen categoría de catálogo en ningún evento. **Cualquier análisis por categoría se hace sobre 390 productos, no sobre 421.**
+</p>
+</div>
+<p>No se pueden recuperar desde estos datos. La mayoría sí tiene valores de categoría en <code>item_category</code> dentro de <code>view_item</code>, pero esos son rutas de navegación —la sección anterior lo demostró— y no describen al producto. No es una categoría que se esté desperdiciando: es otro campo que no sirve para esto.</p>
+<h3>Las vistas de producto</h3>
+<h4>3.11 ¿Qué significa una vista?</h4>
+<p>Ya sabemos qué productos analizar. Falta comprobar qué mide el evento que va a hacer de denominador en todas las preguntas de conversión.</p>
+<p>El supuesto es simple: <code>view_item</code> es alguien entrando a ver un producto. Si eso es cierto, cada evento debería traer <strong>exactamente un producto</strong>.</p>
+<pre><code class="language-sql">SELECT
+  ARRAY_LENGTH(items) AS productos_en_el_evento,
+  COUNT(*)            AS eventos
+FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  AND event_name = 'view_item'
+GROUP BY productos_en_el_evento
+ORDER BY productos_en_el_evento
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>productos en el evento</th>
+<th>eventos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td><strong>144,192</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td>8,726</td>
+</tr>
+<tr>
+<td>2 a 11</td>
+<td>13,517</td>
+</tr>
+<tr>
+<td><strong>12</strong></td>
+<td><strong>219,633</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Dos cosas rompen el supuesto por separado.</p>
+<p><strong>Solo 8,726 eventos traen un producto</strong>, un 2% del total. En el 98% restante, o no hay ninguno o hay doce.</p>
+<p><strong>El tope está en 12 y ahí se acumula el 57%.</strong> Un número redondo repetido en 219,633 eventos no es comportamiento de usuario: es el tamaño de algo.</p>
+<div class="cs-hallazgo">
+<p>`view_item` no significa "alguien vio este producto". Un evento trae doce productos o ninguno, así que **contar sus filas no cuenta visitas a fichas de producto**.
+</p>
+</div>
 
-        <h2>Cómo replicarlo</h2>
-        <p>Cualquiera puede reproducirlo entero: la fuente es pública y el SQL está versionado. No hace falta acceso a ningún dato privado.</p>
-        <ol>
-          <li>Ejecutar la consulta sobre el dataset público.</li>
-          <li>Materializar el resultado en una tabla propia.</li>
-          <li>Conectar Looker Studio a esa tabla, no al export.</li>
-        </ol>
+<h2>4. Las respuestas</h2>
+<p>El diagnóstico deja una base clara y un límite duro. Estas son las tres preguntas del principio, con lo que se puede afirmar de cada una.</p>
+<h4>4.1 ¿Cuál es la conversión del negocio?</h4>
+<p><strong>Sí se puede.</strong> Es la única de las tres que no necesita saber qué producto se vio, así que el defecto de <code>view_item</code> no la afecta.</p>
+<p>Antes de calcularla hay que comprobar que el evento de compra no se repita, porque si se repite el numerador queda inflado.</p>
+<pre><code class="language-sql">WITH e AS (
+  SELECT
+    CONCAT(user_pseudo_id, '-', CAST((SELECT value.int_value FROM UNNEST(event_params)
+           WHERE key = 'ga_session_id') AS STRING)) AS sesion,
+    (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'transaction_id') AS transaccion
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'purchase'
+)
+SELECT
+  COUNT(*)                                          AS eventos_de_compra,
+  COUNT(DISTINCT transaccion)                       AS transacciones_distintas,
+  COUNTIF(transaccion IS NULL)                      AS sin_transaction_id
+FROM e
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>eventos de compra</th>
+<th>transacciones distintas</th>
+<th>sin transaction_id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5,692</td>
+<td><strong>4,466</strong></td>
+<td>906</td>
+</tr>
+</tbody>
+</table>
+<div class="cs-hallazgo">
+<p>El evento de compra se dispara varias veces para la misma transacción — recargar la página de confirmación basta. De 5,692 eventos salen 4,466 transacciones. **Todo cálculo de ingresos o de compras hay que deduplicar por `transaction_id`.**
+</p>
+</div>
+<p>Los 906 eventos sin <code>transaction_id</code> no se pueden deduplicar y se conservan tal cual. Con esa regla quedan <strong>5,372 transacciones</strong>.</p>
+<p>Ya se puede calcular. Hay dos formas de expresarla y no dicen lo mismo:</p>
+<pre><code class="language-sql">WITH transacciones AS (
+  SELECT
+    CONCAT(user_pseudo_id, '-', CAST((SELECT value.int_value FROM UNNEST(event_params)
+           WHERE key = 'ga_session_id') AS STRING)) AS sesion,
+    COALESCE(
+      (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'transaction_id'),
+      CONCAT(user_pseudo_id, '-', CAST(event_timestamp AS STRING))
+    ) AS transaccion,
+    event_timestamp
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'purchase'
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY transaccion ORDER BY event_timestamp) = 1
+),
+sesiones AS (
+  SELECT CONCAT(user_pseudo_id, '-', CAST((SELECT value.int_value FROM UNNEST(event_params)
+         WHERE key = 'ga_session_id') AS STRING)) AS sesion
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+  GROUP BY sesion
+)
+SELECT
+  (SELECT COUNT(*) FROM sesiones)                    AS sesiones,
+  (SELECT COUNT(*) FROM transacciones)               AS transacciones,
+  (SELECT COUNT(DISTINCT sesion) FROM transacciones) AS sesiones_con_compra,
+  ROUND((SELECT COUNT(*) FROM transacciones) /
+        (SELECT COUNT(*) FROM sesiones) * 100, 2)    AS a_transacciones_por_sesion,
+  ROUND((SELECT COUNT(DISTINCT sesion) FROM transacciones) /
+        (SELECT COUNT(*) FROM sesiones) * 100, 2)    AS b_sesiones_que_compran
+FROM sesiones LIMIT 1
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th></th>
+<th>cálculo</th>
+<th>resultado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Transacciones por sesión</strong></td>
+<td>5,372 / 360,129</td>
+<td><strong>1.49%</strong></td>
+</tr>
+<tr>
+<td><strong>B. Sesiones que compran</strong></td>
+<td>4,848 / 360,129</td>
+<td><strong>1.35%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>La A mide volumen</strong>: cuántas compras genera cada visita. Puede pasar de 100% si una sesión compra varias veces.</p>
+<p><strong>La B mide probabilidad</strong>: qué parte de las visitas acaba comprando. Nunca pasa de 100%, y es la que reporta GA4 como conversión de sesión y contra la que se comparan referencias del sector.</p>
+<p>La diferencia entre las dos —1.49 frente a 1.35— son las 524 sesiones que hicieron más de una compra.</p>
+<h4>4.2 ¿Los productos que más facturan son los que mejor convierten?</h4>
+<p><strong>Solo la mitad.</strong> La facturación por producto sale de <code>purchase</code>, que trae el ingreso y el producto, y no necesita vistas.</p>
+<pre><code class="language-sql">WITH compras AS (
+  SELECT
+    COALESCE(
+      (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'transaction_id'),
+      CONCAT(user_pseudo_id, '-', CAST(event_timestamp AS STRING))
+    ) AS transaccion,
+    event_timestamp, items
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'purchase'
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY transaccion ORDER BY event_timestamp) = 1
+)
+SELECT
+  i.item_name                           AS producto,
+  COUNT(*)                              AS unidades,
+  ROUND(SUM(IFNULL(i.item_revenue, 0))) AS ingresos
+FROM compras, UNNEST(items) AS i
+WHERE i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')
+GROUP BY producto
+ORDER BY ingresos DESC
+LIMIT 8
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>producto</th>
+<th>unidades</th>
+<th>ingresos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google Zip Hoodie F/C</td>
+<td>243</td>
+<td><strong>13,152</strong></td>
+</tr>
+<tr>
+<td>Google Crewneck Sweatshirt Navy</td>
+<td>209</td>
+<td>9,878</td>
+</tr>
+<tr>
+<td>Super G Unisex Joggers</td>
+<td>273</td>
+<td>9,133</td>
+</tr>
+<tr>
+<td>Google Badge Heavyweight Pullover Black</td>
+<td>163</td>
+<td>8,674</td>
+</tr>
+<tr>
+<td>Google Men's Tech Fleece Grey</td>
+<td>107</td>
+<td>8,668</td>
+</tr>
+<tr>
+<td>Google Crewneck Sweatshirt Green</td>
+<td>160</td>
+<td>7,579</td>
+</tr>
+<tr>
+<td>Google Sherpa Zip Hoodie Charcoal</td>
+<td>100</td>
+<td>6,122</td>
+</tr>
+<tr>
+<td>Google Men's Puff Jacket Black</td>
+<td>59</td>
+<td>5,750</td>
+</tr>
+</tbody>
+</table>
+<p>Ya asoma algo: los joggers venden más unidades que nadie —273— y quedan terceros en ingresos. El <em>Tech Fleece</em> vende 107, cuatro veces menos, y se queda a 465 dólares de ellos. Unidades e ingresos no ordenan igual.</p>
+<p>Lo que no se puede es la otra mitad. La conversión por producto necesita saber cuánta gente vio cada uno, y la sección 11 demostró que <code>view_item</code> no mide eso.</p>
+<div class="cs-hallazgo">
+<p>**La pregunta no tiene respuesta con la medición actual.** Se sabe qué productos facturan más; no se sabe cuáles convierten mejor, así que no se puede decir si coinciden.
+</p>
+</div>
+<h4>4.3 ¿Qué categoría convierte mejor? ¿Es la que más factura?</h4>
+<p>Mismo reparto. La facturación por categoría se puede, sobre los 390 productos que tienen categoría de catálogo.</p>
+<pre><code class="language-sql">WITH compras AS (
+  SELECT
+    COALESCE(
+      (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'transaction_id'),
+      CONCAT(user_pseudo_id, '-', CAST(event_timestamp AS STRING))
+    ) AS transaccion,
+    event_timestamp, items
+  FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`
+  WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+    AND event_name = 'purchase'
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY transaccion ORDER BY event_timestamp) = 1
+),
+categoria_de_catalogo AS (
+  SELECT producto, categoria FROM (
+    SELECT
+      i.item_name     AS producto,
+      i.item_category AS categoria,
+      ROW_NUMBER() OVER (PARTITION BY i.item_name ORDER BY COUNT(*) DESC) AS rn
+    FROM `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`, UNNEST(items) AS i
+    WHERE _TABLE_SUFFIX BETWEEN '20201101' AND '20210131'
+      AND event_name IN ('begin_checkout','purchase')
+      AND i.item_name     IS NOT NULL AND i.item_name     NOT IN ('(not set)','')
+      AND i.item_category IS NOT NULL AND i.item_category NOT IN ('(not set)','')
+    GROUP BY producto, categoria
+  ) WHERE rn = 1
+),
+ventas AS (
+  SELECT i.item_name AS producto, IFNULL(i.item_revenue, 0) AS ingreso
+  FROM compras, UNNEST(items) AS i
+  WHERE i.item_name IS NOT NULL AND i.item_name NOT IN ('(not set)','')
+)
+SELECT
+  c.categoria,
+  COUNT(DISTINCT v.producto) AS productos,
+  COUNT(*)                   AS unidades,
+  ROUND(SUM(v.ingreso))      AS ingresos
+FROM ventas v
+JOIN categoria_de_catalogo c USING (producto)
+GROUP BY c.categoria
+ORDER BY ingresos DESC
+LIMIT 8
+</code></pre>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>categoría</th>
+<th>productos</th>
+<th>unidades</th>
+<th>ingresos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Apparel</strong></td>
+<td>92</td>
+<td>4,594</td>
+<td><strong>159,060</strong></td>
+</tr>
+<tr>
+<td>New</td>
+<td>44</td>
+<td>1,399</td>
+<td>25,102</td>
+</tr>
+<tr>
+<td>Bags</td>
+<td>23</td>
+<td>674</td>
+<td>22,782</td>
+</tr>
+<tr>
+<td>Uncategorized Items</td>
+<td>13</td>
+<td>679</td>
+<td>21,139</td>
+</tr>
+<tr>
+<td>Campus Collection</td>
+<td>66</td>
+<td>1,443</td>
+<td>19,427</td>
+</tr>
+<tr>
+<td>Accessories</td>
+<td>41</td>
+<td>1,224</td>
+<td>17,161</td>
+</tr>
+<tr>
+<td>Shop by Brand</td>
+<td>17</td>
+<td>811</td>
+<td>17,142</td>
+</tr>
+<tr>
+<td>Drinkware</td>
+<td>11</td>
+<td>673</td>
+<td>14,976</td>
+</tr>
+</tbody>
+</table>
+<p><code>Apparel</code> factura seis veces más que la siguiente. Y aparece una categoría llamada <code>Uncategorized Items</code> que mueve 21,139 — el propio catálogo tiene productos sin clasificar, además de los 31 que no traen categoría en ningún sitio.</p>
+<div class="cs-hallazgo">
+<p>Misma respuesta parcial: se sabe qué categoría factura más, no cuál convierte mejor. Y la comparación se hace sobre 390 de los 421 productos, así que el reparto por categoría **no incluye a los 31 sin clasificar**.
+</p>
+</div>
+
+<h2>5. Los hallazgos</h2>
+<p>Once comprobaciones, y cada una cambió algo. Se separan en dos grupos, porque el destinatario es distinto.</p>
+<h4>5.1 Lo que se resuelve analizando</h4>
+<p>Defectos del dato que se sortean eligiendo bien. Son decisiones del análisis y no requieren tocar nada del sitio.</p>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>Hallazgo</th>
+<th>Decisión</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>item_id</code> no identifica productos: 416 de 429 tienen varios, uno llega a catorce</td>
+<td>Agrupar por <code>item_name</code>. La base pasa de 1,392 a 429</td>
+</tr>
+<tr>
+<td><code>item_category</code> guarda dos cosas: la ruta de navegación en <code>view_item</code>, la etiqueta del catálogo en <code>purchase</code></td>
+<td>Tomar la categoría solo de <code>begin_checkout</code> y <code>purchase</code></td>
+</tr>
+</tbody>
+</table>
+<h4>5.2 Lo que no se arregla desde SQL</h4>
+<p>Aquí el análisis no puede hacer nada. Son fallos de medición y quien los corrige es quien implementó el sitio.</p>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>Hallazgo</th>
+<th>Impacto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>view_item</code> no mide vistas de producto.</strong> Un evento trae doce productos o ninguno; solo el 2% trae uno</td>
+<td><strong>Bloquea la conversión por producto y por categoría.</strong> Es el más grave</td>
+</tr>
+<tr>
+<td>8 productos aparecen comprados sin haberse visto nunca</td>
+<td>645 compras, un 4% del total, sin producto atribuible</td>
+</tr>
+<tr>
+<td>31 productos no tienen categoría en ningún evento</td>
+<td>El análisis por categoría cubre 390 de 421 productos</td>
+</tr>
+</tbody>
+</table>
+<h4>5.3 Qué habría que arreglar, en orden</h4>
+<ol>
+<li><strong>Disparar <code>view_item</code> en la ficha de producto</strong>, con ese producto en <code>items</code>. Es lo único que desbloquea la conversión por producto, que es la pregunta original.</li>
+<li><strong>Usar el mismo identificador de producto en las cuatro etapas.</strong> Hoy la mitad alta manda SKU y la baja un identificador por talla.</li>
+<li><strong>Separar la categoría del catálogo de la ruta de navegación</strong> en dos campos distintos.</li>
+</ol>
 
       </article>
     </div>
@@ -136,7 +1306,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h4 id="cs-panel-titulo">Consulta SQL</h4>
       <div class="cs-panel-acciones">
         <button class="cs-panel-btn" id="cs-copiar">Copiar</button>
-        <button class="cs-panel-btn" id="cs-descargar">Descargar .sql</button>
+        <button class="cs-panel-btn" id="cs-descargar">Descargar</button>
         <button class="cs-panel-btn" id="cs-cerrar">Cerrar</button>
       </div>
     </div>
@@ -144,130 +1314,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
-<script type="text/plain" id="sql-principal" data-titulo="rendimiento-producto-ga4-big-query.sql">
-WITH product_performance AS
-(SELECT
-    PARSE_DATE('%Y%m%d', event_date) AS date,
-    items.item_id AS item_id,
-    SUM(CASE WHEN event_name = 'view_item'      THEN IFNULL(items.quantity, 1) ELSE 0 END) AS view_item,
-    SUM(CASE WHEN event_name = 'add_to_cart'    THEN IFNULL(items.quantity, 1) ELSE 0 END) AS add_to_cart,
-    SUM(CASE WHEN event_name = 'begin_checkout' THEN IFNULL(items.quantity, 1) ELSE 0 END) AS begin_checkout,
-    SUM(CASE WHEN event_name = 'purchase'       THEN IFNULL(items.quantity, 1) ELSE 0 END) AS purchase_item,
-    SUM(CASE WHEN event_name = 'purchase'       THEN items.item_revenue        ELSE 0 END) AS revenue_item
-  FROM
-    `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
-    UNNEST(items) AS items
-  WHERE
-    REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
-      BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
-      AND     FORMAT_DATE("%Y%m%d", current_date())
-    AND items.item_id <> '(not set)'
-  GROUP BY date, item_id
-),
 
-item_name AS
-(SELECT item_id, ANY_VALUE(item_name) AS item_name
-  FROM (
-    SELECT
-      items.item_id,
-      IF(items.item_name = '(not set)', 'no_name', items.item_name) AS item_name
-    FROM
-      `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
-      UNNEST(items) AS items
-    WHERE
-      REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
-        BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
-        AND     FORMAT_DATE("%Y%m%d", current_date())
-      AND items.item_id <> '(not set)'
-  )
-  GROUP BY item_id
-),
 
-item_brand AS
-(SELECT item_id, ANY_VALUE(item_brand) AS item_brand
-  FROM (
-    SELECT
-      items.item_id,
-      CASE
-        WHEN items.item_brand = ''          THEN 'No Brand'
-        WHEN items.item_brand = '(not set)' THEN 'No Brand'
-        WHEN items.item_brand LIKE '%#%'    THEN 'Remarkable'
-        ELSE items.item_brand
-      END AS item_brand
-    FROM
-      `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
-      UNNEST(items) AS items
-    WHERE
-      REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
-        BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
-        AND     FORMAT_DATE("%Y%m%d", current_date())
-      AND items.item_id <> '(not set)'
-  )
-  GROUP BY item_id
-),
-
-item_category AS
-(SELECT
-    item_id,
-    ANY_VALUE(item_category)   AS item_category,
-    ANY_VALUE(item_category_2) AS item_category_2
-  FROM (
-    SELECT
-      items.item_id,
-      IF(SPLIT(items.item_category, "/")[SAFE_OFFSET(0)] IN ('', '(not set)'),
-         'No Category',
-         SPLIT(items.item_category, "/")[SAFE_OFFSET(0)]) AS item_category,
-      IF(SPLIT(items.item_category, "/")[SAFE_OFFSET(1)] IS NULL
-           OR SPLIT(items.item_category, "/")[SAFE_OFFSET(1)] IN ('', '(not set)'),
-         'No Category',
-         SPLIT(items.item_category, "/")[SAFE_OFFSET(1)]) AS item_category_2
-    FROM
-      `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
-      UNNEST(items) AS items
-    WHERE
-      REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
-        BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
-        AND     FORMAT_DATE("%Y%m%d", current_date())
-      AND items.item_id <> '(not set)'
-  )
-  GROUP BY item_id
-),
-
-item_link AS
-(SELECT
-    items.item_id AS item_id,
-    ANY_VALUE((SELECT value.string_value FROM UNNEST(event_params) WHERE KEY = 'page_location')) AS link
-  FROM
-    `bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*`,
-    UNNEST(items) AS items
-  WHERE
-    REGEXP_EXTRACT(_TABLE_SUFFIX, r"[0-9]+")
-      BETWEEN FORMAT_DATE("%Y%m%d", "2020-11-01")
-      AND     FORMAT_DATE("%Y%m%d", current_date())
-    AND items.item_id <> '(not set)'
-  GROUP BY items.item_id
-)
-
-SELECT
-  t1.date,
-  t1.item_id,
-  t2.item_name,
-  t3.item_brand,
-  t4.item_category,
-  t4.item_category_2,
-  t1.view_item,
-  t1.add_to_cart,
-  t1.begin_checkout,
-  t1.purchase_item,
-  t1.revenue_item,
-  t5.link
-FROM product_performance t1
-LEFT JOIN item_name     t2 ON t1.item_id = t2.item_id
-LEFT JOIN item_brand    t3 ON t1.item_id = t3.item_id
-LEFT JOIN item_category t4 ON t1.item_id = t4.item_id
-LEFT JOIN item_link     t5 ON t1.item_id = t5.item_id
-</script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function () {
   const overlay  = document.getElementById('cs-overlay');
@@ -276,14 +1325,30 @@ LEFT JOIN item_link     t5 ON t1.item_id = t5.item_id
   const slug     = 'ecommerce-performance-insights';
   let nombreArchivo = 'consulta.sql';
 
+  // El lenguaje sale de la extension del archivo, no se asume SQL
+  const LENGUAJES = {
+    sql: 'sql', py: 'python', sh: 'bash', bash: 'bash', js: 'javascript',
+    json: 'json', yaml: 'yaml', yml: 'yaml', html: 'xml', css: 'css', md: 'markdown'
+  };
+  const extension = a => (a.split('.').pop() || '').toLowerCase();
+
   const dl = o => { window.dataLayer = window.dataLayer || []; window.dataLayer.push(o); };
+
+  // Si highlight.js no carga, el codigo se muestra igual, sin color.
+  function resaltar(texto, archivo) {
+    codigo.textContent = texto;
+    codigo.className = 'language-' + (LENGUAJES[extension(archivo)] || 'plaintext');
+    delete codigo.dataset.highlighted;
+    if (window.hljs) hljs.highlightElement(codigo);
+  }
 
   function abrir(id) {
     const fuente = document.getElementById(id);
     if (!fuente) return;
     nombreArchivo   = fuente.dataset.titulo || 'consulta.sql';
     titulo.textContent = nombreArchivo;
-    codigo.textContent = fuente.textContent.trim();
+    resaltar(fuente.textContent.trim(), nombreArchivo);
+    document.getElementById('cs-descargar').textContent = 'Descargar .' + extension(nombreArchivo);
     overlay.classList.add('abierto');
     document.body.style.overflow = 'hidden';
     dl({ event: 'caso_ver_sql', slug: slug, consulta: nombreArchivo });

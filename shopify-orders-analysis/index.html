@@ -8,7 +8,8 @@
   <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
-  <link rel="stylesheet" href="../assets/caso.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="../assets/caso.css?v=7" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -39,120 +40,194 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <a class="cs-volver" href="../">&larr; Portafolio</a>
 
   <header class="cs-head">
-    <div class="cs-cat">SQL y datos</div>
+    <div class="cs-cat">Google Cloud · SQL · Looker Studio</div>
     <h1>Shopify Orders Analysis</h1>
     <p class="cs-pregunta">¿Qué patrones esconden dos años de pedidos?</p>
 
-    <div class="cs-acciones">
-      <a class="cs-accion" href="https://lookerstudio.google.com/reporting/feceecaa-0ba9-4750-8b55-0ab20da5a5b8" target="_blank" data-destino="dashboard">Ver dashboard <span>&#8599;</span></a>
-      <a class="cs-accion" href="https://github.com/angelgarciadatablog/shopify-orders-analysis" target="_blank" data-destino="repo">Ver repositorio <span>&#8599;</span></a>
-    </div>
+    <div class="cs-acciones"><a class="cs-accion" href="https://lookerstudio.google.com/reporting/feceecaa-0ba9-4750-8b55-0ab20da5a5b8" target="_blank" data-destino="dashboard">Ver dashboard <span>&#8599;</span></a><a class="cs-accion" href="https://github.com/angelgarciadatablog/shopify-orders-analysis" target="_blank" data-destino="repo">Ver repositorio <span>&#8599;</span></a></div>
 
-    <div class="cs-metricas">
-      <div class="cs-metrica"><b>16,081</b><span>pedidos</span></div>
-      <div class="cs-metrica"><b>75</b><span>columnas</span></div>
-      <div class="cs-metrica"><b>24</b><span>meses</span></div>
-    </div>
+    <div class="cs-metricas"><div class="cs-metrica"><b>16,081</b><span>pedidos</span></div><div class="cs-metrica"><b>75</b><span>columnas</span></div><div class="cs-metrica"><b>24</b><span>meses</span></div></div>
   </header>
 
   <div class="cs-layout">
 
     <div>
-      <div class="cs-video">
-        <div class="cs-video-vacio">video del proyecto</div>
-      </div>
+      <div class="cs-video"><div class="cs-video-vacio">video del proyecto</div></div>
 
       <article class="cs-body" id="cs-body">
 
-        <h2>El problema</h2>
-        <p>Un export de pedidos de Shopify es una tabla ancha y plana: 75 columnas, una línea por venta, cero contexto. Nadie decide nada mirándola.</p>
-        <p>La pregunta: <strong>¿qué se puede extraer de dos años de pedidos que el dueño del negocio no vea ya en su panel?</strong> Concretamente sobre cupones, tallas, categorías y comportamiento a lo largo del tiempo.</p>
 
-        <h2>Los datos</h2>
-        <table class="cs-tabla">
-          <tr><th>Origen</th><td><code>datablog-datasets-360.shopify.shopify_orders</code></td></tr>
-          <tr><th>Qué es</th><td>Export de pedidos con el formato real de Shopify, <strong>datos ficticios</strong></td></tr>
-          <tr><th>Periodo</th><td>1 ene 2023 &rarr; 30 dic 2024</td></tr>
-          <tr><th>Volumen</th><td>16,081 pedidos &middot; 75 columnas &middot; 8.17M PEN facturados</td></tr>
-          <tr><th>Mercado</th><td>Perú (PE / PEN), tienda de ropa</td></tr>
-          <tr><th>Campañas</th><td>Tres cupones: <code>BIENVENIDA</code>, <code>SUERTE</code>, <code>CYBER</code></td></tr>
-          <tr><th>Herramientas</th><td>BigQuery &middot; SQL &middot; Looker Studio</td></tr>
-        </table>
-        <div class="cs-aviso">
-          <p>Los datos son ficticios. El caso demuestra el método sobre la estructura real de un export de Shopify: no describe el comportamiento de ningún negocio existente, y sus conclusiones no deben leerse como tal.</p>
-        </div>
+<h2>El problema</h2>
+<p>Un export de pedidos de Shopify es una tabla ancha y plana: 75 columnas, una línea por venta, cero contexto. Nadie decide nada mirándola.</p>
+<p>La pregunta: <strong>¿qué se puede extraer de dos años de pedidos que el dueño del negocio no vea ya en su panel?</strong> Concretamente sobre cupones, tallas, categorías y comportamiento a lo largo del tiempo.</p>
+<h2>Los datos</h2>
+<table class="cs-tabla">
 
-        <h2>El proceso</h2>
-        <ol>
-          <li><strong>Fecha y hora utilizables</strong> — <code>DATE()</code> y <code>EXTRACT(HOUR FROM …)</code> para poder abrir el análisis por día y por franja horaria.</li>
-          <li><strong>Dos consultas, dos granos</strong> — una a nivel de pedido y otra a nivel de línea de producto. Mezclarlos es el error clásico de este dataset: sumar importes de línea sobre una consulta de pedidos duplica los ingresos.</li>
-          <li><strong>Derivar las dimensiones que Shopify no da.</strong> Talla, género, color y categoría no son columnas del export: se construyen leyendo la convención de nombres del catálogo.</li>
-        </ol>
-
-        <table class="cs-tabla">
-          <tr><th>Dimensión</th><th>Cómo se deriva</th></tr>
-          <tr><td><strong>categoria</strong></td><td>Primera palabra del nombre del producto</td></tr>
-          <tr><td><strong>talla</strong></td><td>Sufijo en mayúsculas al final del nombre</td></tr>
-          <tr><td><strong>color</strong></td><td>Bloque intermedio del nombre</td></tr>
-          <tr><td><strong>genero</strong></td><td><code>LIKE '%hombre%'</code> &rarr; Hombre; <code>LIKE '%mujer%'</code> &rarr; Mujer; <strong>todo lo demás</strong> &rarr; Unisex</td></tr>
-          <tr><td><strong>distrito</strong></td><td><code>Billing City</code></td></tr>
-        </table>
-
-        <button class="cs-boton" data-sql="sql-pedidos">Consulta a nivel de pedido</button>
-        <button class="cs-boton" data-sql="sql-items">Consulta a nivel de línea</button>
-
-        <div class="cs-aviso">
-          <p><strong>Detalle de reproducibilidad:</strong> las 75 columnas vienen con espacios en el nombre (<code>Created at</code>, <code>Lineitem price</code>), lo que obliga a usar backticks en toda la consulta y rompe algunos conectores. La solución limpia es una vista con los nombres normalizados a <code>snake_case</code>.</p>
-        </div>
-
-        <h2>Hallazgos</h2>
-        <p>Al verificar los cuatro hallazgos iniciales contra la tabla, <strong>sobrevivió uno</strong>. Los otros tres eran artefactos del método, no patrones del negocio.</p>
-
-        <h3>Sobrevive: la talla M domina de forma transversal</h3>
-        <table class="cs-tabla">
-          <tr><th>Talla</th><th>Unidades</th></tr>
-          <tr><td><strong>M</strong></td><td><strong>8,388</strong></td></tr>
-          <tr><td>XS</td><td>2,875</td></tr>
-          <tr><td>L</td><td>2,851</td></tr>
-          <tr><td>S</td><td>2,776</td></tr>
-          <tr><td>XL</td><td>2,766</td></tr>
-        </table>
-        <p>Casi tres veces la siguiente, y se repite en los tres géneros (Hombre 2,795 · Mujer 2,848 · Unisex 2,745 frente a unas 950 de cada otra talla). Es un patrón deliberado del dataset, no ruido.</p>
-
-        <h3>Retirado: "el género con mayor peso es Unisex, no femenino"</h3>
-        <p><code>Unisex</code> no es una categoría, es el <code>ELSE</code> del <code>CASE</code>: cae ahí todo lo que no diga "hombre" ni "mujer".</p>
-        <table class="cs-tabla">
-          <tr><th></th><th>Hombre</th><th>Mujer</th><th>Unisex</th></tr>
-          <tr><td>Global</td><td>33.6%</td><td>33.2%</td><td>33.2%</td></tr>
-          <tr><td>Short</td><td>505</td><td><strong>507</strong></td><td>495</td></tr>
-          <tr><td>Vestido</td><td>479</td><td><strong>502</strong></td><td>493</td></tr>
-        </table>
-        <p>El reparto es uniforme por diseño y, donde hay diferencia, lidera Mujer. Hay 479 vestidos asignados a "Hombre".</p>
-
-        <h3>Retirado: "los cupones se usan sobre todo por mujeres, sobre todo BIENVENIDA, en Surco y Chorrillos"</h3>
-        <p>Las tres afirmaciones fallan:</p>
-        <ul>
-          <li><strong>Género:</strong> sin patrón — BIENVENIDA 174/165/160, SUERTE 207/201/190, CYBER 215/169/168.</li>
-          <li><strong>BIENVENIDA es el cupón menos usado</strong>, no el más: SUERTE 598, CYBER 552, BIENVENIDA 499.</li>
-          <li><strong>Distritos:</strong> Chorrillos encabeza el uso de cupones porque es el distrito con más pedidos en total (1,212). Su <em>tasa</em> de uso es 11.4%, en línea con el resto. Las tasas más altas son Magdalena (12.9%) y Pueblo Libre (12.6%).</li>
-        </ul>
-        <p>Error de método: se comparó volumen absoluto sin normalizar por el volumen base de cada distrito.</p>
-
-        <h3>Retirado: "caída sostenida de ventas con descuento desde julio de 2024"</h3>
-        <p>La serie mensual es plana en los 24 meses, en un rango de 363 a 454 unidades. <strong>Julio de 2024 es, de hecho, el mes más alto de todo el periodo</strong> (454). No hay tendencia.</p>
-
-        <h2>Qué habilita decidir</h2>
-        <ol>
-          <li><strong>Priorizar el abastecimiento de la talla M</strong>, que concentra la demanda de forma estable en los dos años y en todos los géneros. Es el único hallazgo con respaldo.</li>
-        </ol>
-
-        <h2>Lo que este caso enseña</h2>
-        <p>Al ser datos sintéticos generados con distribuciones uniformes, casi cualquier diferencia observada es ruido. Eso convierte el caso en algo más útil que un análisis: <strong>un ejemplo de las tres trampas que producen hallazgos falsos.</strong></p>
-        <ol>
-          <li><strong>El bucket <code>ELSE</code> no es una categoría.</strong> Una dimensión derivada con un catch-all mete ahí "todo lo demás"; compararlo con las categorías reales no significa nada.</li>
-          <li><strong>El volumen absoluto sin tasa base engaña.</strong> El distrito con más cupones es, simplemente, el distrito con más pedidos.</li>
-          <li><strong>Un punto no es una tendencia.</strong> Antes de afirmar "caída sostenida desde X" hay que mirar la serie completa.</li>
-        </ol>
+<tbody>
+<tr>
+<th>Origen</th>
+<td><code>datablog-datasets-360.shopify.shopify_orders</code></td>
+</tr>
+<tr>
+<th>Qué es</th>
+<td>Export de pedidos con el formato real de Shopify, <strong>datos ficticios</strong></td>
+</tr>
+<tr>
+<th>Periodo</th>
+<td>1 ene 2023 → 30 dic 2024</td>
+</tr>
+<tr>
+<th>Volumen</th>
+<td>16,081 pedidos · 75 columnas · 8.17M PEN facturados</td>
+</tr>
+<tr>
+<th>Mercado</th>
+<td>Perú (PE / PEN), tienda de ropa</td>
+</tr>
+<tr>
+<th>Campañas</th>
+<td>Tres cupones: <code>BIENVENIDA</code>, <code>SUERTE</code>, <code>CYBER</code></td>
+</tr>
+<tr>
+<th>Herramientas</th>
+<td>BigQuery · SQL · Looker Studio</td>
+</tr>
+</tbody>
+</table>
+<div class="cs-aviso">
+<p>Los datos son ficticios. El caso demuestra el método sobre la estructura real de un export de Shopify: no describe el comportamiento de ningún negocio existente, y sus conclusiones no deben leerse como tal.
+</p>
+</div>
+<h2>El proceso</h2>
+<ol>
+<li><strong>Fecha y hora utilizables</strong> — <code>DATE()</code> y <code>EXTRACT(HOUR FROM …)</code> para poder abrir el análisis por día y por franja horaria.</li>
+<li><strong>Dos consultas, dos granos</strong> — una a nivel de pedido y otra a nivel de línea de producto. Mezclarlos es el error clásico de este dataset: sumar importes de línea sobre una consulta de pedidos duplica los ingresos.</li>
+<li><strong>Derivar las dimensiones que Shopify no da.</strong> Talla, género, color y categoría no son columnas del export: se construyen leyendo la convención de nombres del catálogo.</li>
+</ol>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>Dimensión</th>
+<th>Cómo se deriva</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>categoria</strong></td>
+<td>Primera palabra del nombre del producto</td>
+</tr>
+<tr>
+<td><strong>talla</strong></td>
+<td>Sufijo en mayúsculas al final del nombre</td>
+</tr>
+<tr>
+<td><strong>color</strong></td>
+<td>Bloque intermedio del nombre</td>
+</tr>
+<tr>
+<td><strong>genero</strong></td>
+<td><code>LIKE '%hombre%'</code> → Hombre; <code>LIKE '%mujer%'</code> → Mujer; <strong>todo lo demás</strong> → Unisex</td>
+</tr>
+<tr>
+<td><strong>distrito</strong></td>
+<td><code>Billing City</code></td>
+</tr>
+</tbody>
+</table>
+<p><button class="cs-boton" data-sql="sql-01">Consulta a nivel de pedido</button></p>
+<p><button class="cs-boton" data-sql="sql-02">Consulta a nivel de línea</button></p>
+<div class="cs-aviso">
+<p>**Detalle de reproducibilidad:** las 75 columnas vienen con espacios en el nombre (`Created at`, `Lineitem price`), lo que obliga a usar backticks en toda la consulta y rompe algunos conectores. La solución limpia es una vista con los nombres normalizados a `snake_case`.
+</p>
+</div>
+<h2>Hallazgos</h2>
+<p>Al verificar los cuatro hallazgos iniciales contra la tabla, <strong>sobrevivió uno</strong>. Los otros tres eran artefactos del método, no patrones del negocio.</p>
+<h3>Sobrevive: la talla M domina de forma transversal</h3>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th>Talla</th>
+<th>Unidades</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>M</strong></td>
+<td><strong>8,388</strong></td>
+</tr>
+<tr>
+<td>XS</td>
+<td>2,875</td>
+</tr>
+<tr>
+<td>L</td>
+<td>2,851</td>
+</tr>
+<tr>
+<td>S</td>
+<td>2,776</td>
+</tr>
+<tr>
+<td>XL</td>
+<td>2,766</td>
+</tr>
+</tbody>
+</table>
+<p>Casi tres veces la siguiente, y se repite en los tres géneros (Hombre 2,795 · Mujer 2,848 · Unisex 2,745 frente a unas 950 de cada otra talla). Es un patrón deliberado del dataset, no ruido.</p>
+<h3>Retirado: "el género con mayor peso es Unisex, no femenino"</h3>
+<p><code>Unisex</code> no es una categoría, es el <code>ELSE</code> del <code>CASE</code>: cae ahí todo lo que no diga "hombre" ni "mujer".</p>
+<table class="cs-tabla">
+<thead>
+<tr>
+<th></th>
+<th>Hombre</th>
+<th>Mujer</th>
+<th>Unisex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Global</td>
+<td>33.6%</td>
+<td>33.2%</td>
+<td>33.2%</td>
+</tr>
+<tr>
+<td>Short</td>
+<td>505</td>
+<td><strong>507</strong></td>
+<td>495</td>
+</tr>
+<tr>
+<td>Vestido</td>
+<td>479</td>
+<td><strong>502</strong></td>
+<td>493</td>
+</tr>
+</tbody>
+</table>
+<p>El reparto es uniforme por diseño y, donde hay diferencia, lidera Mujer. Hay 479 vestidos asignados a "Hombre".</p>
+<h3>Retirado: "los cupones se usan sobre todo por mujeres, sobre todo BIENVENIDA, en Surco y Chorrillos"</h3>
+<p>Las tres afirmaciones fallan:</p>
+<ul>
+<li><strong>Género:</strong> sin patrón — BIENVENIDA 174/165/160, SUERTE 207/201/190, CYBER 215/169/168.</li>
+<li><strong>BIENVENIDA es el cupón menos usado</strong>, no el más: SUERTE 598, CYBER 552, BIENVENIDA 499.</li>
+<li><strong>Distritos:</strong> Chorrillos encabeza el uso de cupones porque es el distrito con más pedidos en total (1,212). Su <em>tasa</em> de uso es 11.4%, en línea con el resto. Las tasas más altas son Magdalena (12.9%) y Pueblo Libre (12.6%).</li>
+</ul>
+<p>Error de método: se comparó volumen absoluto sin normalizar por el volumen base de cada distrito.</p>
+<h3>Retirado: "caída sostenida de ventas con descuento desde julio de 2024"</h3>
+<p>La serie mensual es plana en los 24 meses, en un rango de 363 a 454 unidades. <strong>Julio de 2024 es, de hecho, el mes más alto de todo el periodo</strong> (454). No hay tendencia.</p>
+<h2>Qué habilita decidir</h2>
+<ol>
+<li><strong>Priorizar el abastecimiento de la talla M</strong>, que concentra la demanda de forma estable en los dos años y en todos los géneros. Es el único hallazgo con respaldo.</li>
+</ol>
+<h2>Lo que este caso enseña</h2>
+<p>Al ser datos sintéticos generados con distribuciones uniformes, casi cualquier diferencia observada es ruido. Eso convierte el caso en algo más útil que un análisis: <strong>un ejemplo de las tres trampas que producen hallazgos falsos.</strong></p>
+<ol>
+<li><strong>El bucket <code>ELSE</code> no es una categoría.</strong> Una dimensión derivada con un catch-all mete ahí "todo lo demás"; compararlo con las categorías reales no significa nada.</li>
+<li><strong>El volumen absoluto sin tasa base engaña.</strong> El distrito con más cupones es, simplemente, el distrito con más pedidos.</li>
+<li><strong>Un punto no es una tendencia.</strong> Antes de afirmar "caída sostenida desde X" hay que mirar la serie completa.</li>
+</ol>
 
       </article>
     </div>
@@ -172,7 +247,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <h4 id="cs-panel-titulo">Consulta SQL</h4>
       <div class="cs-panel-acciones">
         <button class="cs-panel-btn" id="cs-copiar">Copiar</button>
-        <button class="cs-panel-btn" id="cs-descargar">Descargar .sql</button>
+        <button class="cs-panel-btn" id="cs-descargar">Descargar</button>
         <button class="cs-panel-btn" id="cs-cerrar">Cerrar</button>
       </div>
     </div>
@@ -180,33 +255,34 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
-<script type="text/plain" id="sql-pedidos" data-titulo="shopify-orders.sql">
--- Shopify Orders — grano: un pedido
+<script type="text/plain" id="sql-01" data-titulo="shopify-orders.sql">
+-- Shopify Orders
 SELECT
-  DATE(`Created at`)              AS date,
+  DATE(`Created at`) AS date,
   EXTRACT(HOUR FROM `Created at`) AS hour,
-  Name                            AS order_id,
-  Email                           AS user_id,
-  `Financial Status`              AS financial_status,
+  Name AS order_id, 
+  Email AS user_id,
+  `Financial Status` AS financial_status,
   MAX(REGEXP_EXTRACT(`Lineitem name`, r'^([^\s]+)')) AS categoria,
   MAX(
     CASE
-      WHEN lower(`Lineitem name`) LIKE '%hombre%' THEN 'Hombre'
-      WHEN lower(`Lineitem name`) LIKE '%mujer%'  THEN 'Mujer'
-      ELSE 'Unisex'
-    END
+        WHEN lower(`Lineitem name`) like '%hombre%' THEN 'Hombre'
+        WHEN lower(`Lineitem name`) like '%mujer%' THEN 'Mujer'
+        ELSE 'Unisex'
+      END 
   ) AS genero,
-  `Billing City`                        AS billing_city,
-  `Payment Method`                      AS payment_method,
-  NULLIF(TRIM(`Discount Code`), '')     AS discount_code,
-  ROUND(AVG(`Discount Amount`))         AS discount_amount,
-  ROUND(AVG(subtotal), 2)               AS subtotal
+  `Billing City` AS billing_city,
+  `Payment Method` AS payment_method,
+   NULLIF(TRIM(`Discount Code`), '') AS discount_code,
+   round(AVG(`Discount Amount`)) AS discount_amount,
+   round(AVG(subtotal),2) AS subtotal,
+   
 FROM
   `datablog-datasets-360.shopify.shopify_orders`
 GROUP BY
   DATE(`Created at`),
   EXTRACT(HOUR FROM `Created at`),
-  Name,
+  Name, 
   Email,
   `Financial Status`,
   `Billing City`,
@@ -214,71 +290,88 @@ GROUP BY
   `Discount Code`
 </script>
 
-<script type="text/plain" id="sql-items" data-titulo="shopify-orders-items.sql">
--- Shopify Orders Items — grano: una línea de producto
+<script type="text/plain" id="sql-02" data-titulo="shopify-orders-items.sql">
+-- Shopify Orders Items
 SELECT
-  DATE(`Created at`)              AS date,
+  DATE(`Created at`) AS date,
   EXTRACT(HOUR FROM `Created at`) AS hour,
-  Name                            AS order_id,
-  Email                           AS user_id,
-  `Financial Status`              AS financial_status,
-  `Lineitem sku`                  AS lineitem_sku,
-
-  -- dimensiones derivadas del nombre del producto
-  REGEXP_EXTRACT(`Lineitem name`, r'^(.*?) -')            AS lineitem_name,
-  REGEXP_EXTRACT(`Lineitem name`, r' - ([A-Z]+)$')        AS lineitem_variant,   -- talla
-  REGEXP_EXTRACT(`Lineitem name`, r' - (.+?) - [A-Z]+$')  AS color,
-  REGEXP_EXTRACT(`Lineitem name`, r'^([^\s]+)')           AS categoria,
+  Name AS order_id, 
+  Email AS user_id,
+  `Financial Status` AS financial_status,
+  `Lineitem sku` AS lineitem_sku,
+  REGEXP_EXTRACT(`Lineitem name`, r'^(.*?) -') AS lineitem_name,
+   REGEXP_EXTRACT(`Lineitem name`, r' - ([A-Z]+)$') AS lineitem_variant,
+   REGEXP_EXTRACT(`Lineitem name`, r' - (.+?) - [A-Z]+$') AS color,
+   CASE
+      WHEN lower(`Lineitem name`) like '%hombre%' THEN 'Hombre'
+      WHEN lower(`Lineitem name`) like '%mujer%' THEN 'Mujer'
+      ELSE 'Unisex'
+    END AS genero,
+   REGEXP_EXTRACT(`Lineitem name`, r'^([^\s]+)') AS categoria,
+   `Lineitem quantity` AS lineitem_quantity,
+   round(`Lineitem price`,2) AS lineitem_price,
+   round(`Lineitem quantity`*`Lineitem price`,2) AS lineitem_total,
+  `Lineitem compare at price` AS lineitem_compare_at_price,
+   COALESCE(round(`Lineitem compare at price`-`Lineitem price`),0) AS lineitem_discount,
+   COALESCE(round((`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100,2),0) AS lineitem_percent_discount,
   CASE
-    WHEN lower(`Lineitem name`) LIKE '%hombre%' THEN 'Hombre'
-    WHEN lower(`Lineitem name`) LIKE '%mujer%'  THEN 'Mujer'
-    ELSE 'Unisex'                                                                -- catch-all
-  END AS genero,
-
-  `Lineitem quantity`                                AS lineitem_quantity,
-  ROUND(`Lineitem price`, 2)                         AS lineitem_price,
-  ROUND(`Lineitem quantity` * `Lineitem price`, 2)   AS lineitem_total,
-  `Lineitem compare at price`                        AS lineitem_compare_at_price,
-
-  COALESCE(ROUND(`Lineitem compare at price` - `Lineitem price`), 0) AS lineitem_discount,
-  COALESCE(ROUND((`Lineitem compare at price` - `Lineitem price`)
-                 / `Lineitem compare at price` * 100, 2), 0)         AS lineitem_percent_discount,
-
-  CASE
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 > 69 THEN 'Descuento mayor a 70%'
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 > 59 THEN 'Descuento entre 60% y 70%'
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 > 49 THEN 'Descuento entre 50% y 60%'
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 > 39 THEN 'Descuento entre 40% y 50%'
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 > 29 THEN 'Descuento entre 30% y 40%'
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 > 19 THEN 'Descuento entre 20% y 30%'
-    WHEN (`Lineitem compare at price` - `Lineitem price`) / `Lineitem compare at price` * 100 >  9 THEN 'Descuento entre 10% y 20%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >69 THEN 'Descuento mayor a 70%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >59 THEN'Descuento entre 60% y 70%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >49 THEN'Descuento entre 50% y 60%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >39 THEN'Descuento entre 40% y 50%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >29 THEN'Descuento entre 30% y 40%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >19 THEN 'Descuento entre 20% y 30%'
+    WHEN (`Lineitem compare at price`-`Lineitem price`)/`Lineitem compare at price`*100 >9 THEN'Descuento entre 10% y 20%'
     ELSE 'Sin descuento'
   END AS range_discount,
 
-  IF(COALESCE(ROUND(`Lineitem compare at price` - `Lineitem price`), 0) > 0,
-     'Con descuento', 'Sin descuento')                    AS discount_filter,
-  IF(`Lineitem compare at price` IS NOT NULL, `Lineitem quantity`, 0) AS con_descuento_items,
-  IF(`Lineitem compare at price` IS NULL,     `Lineitem quantity`, 0) AS sin_descuento_items
+  IF(
+    COALESCE(round(`Lineitem compare at price`-`Lineitem price`),0) > 0, 'Con descuento','Sin descuento'
+  ) AS discount_filter,
+  IF(
+    `Lineitem compare at price` IS NOT NULL,`Lineitem quantity`, 0
+  ) AS con_descuento_items,
+    IF(
+    `Lineitem compare at price` IS NULL,`Lineitem quantity`, 0
+  ) AS sin_descuento_items
+
 FROM
   `datablog-datasets-360.shopify.shopify_orders`
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script>
 (function () {
-  const overlay = document.getElementById('cs-overlay');
-  const codigo  = document.getElementById('cs-codigo');
-  const titulo  = document.getElementById('cs-panel-titulo');
-  const slug    = 'shopify-orders-analysis';
+  const overlay  = document.getElementById('cs-overlay');
+  const codigo   = document.getElementById('cs-codigo');
+  const titulo   = document.getElementById('cs-panel-titulo');
+  const slug     = 'shopify-orders-analysis';
   let nombreArchivo = 'consulta.sql';
 
+  // El lenguaje sale de la extension del archivo, no se asume SQL
+  const LENGUAJES = {
+    sql: 'sql', py: 'python', sh: 'bash', bash: 'bash', js: 'javascript',
+    json: 'json', yaml: 'yaml', yml: 'yaml', html: 'xml', css: 'css', md: 'markdown'
+  };
+  const extension = a => (a.split('.').pop() || '').toLowerCase();
+
   const dl = o => { window.dataLayer = window.dataLayer || []; window.dataLayer.push(o); };
+
+  // Si highlight.js no carga, el codigo se muestra igual, sin color.
+  function resaltar(texto, archivo) {
+    codigo.textContent = texto;
+    codigo.className = 'language-' + (LENGUAJES[extension(archivo)] || 'plaintext');
+    delete codigo.dataset.highlighted;
+    if (window.hljs) hljs.highlightElement(codigo);
+  }
 
   function abrir(id) {
     const fuente = document.getElementById(id);
     if (!fuente) return;
-    nombreArchivo      = fuente.dataset.titulo || 'consulta.sql';
+    nombreArchivo   = fuente.dataset.titulo || 'consulta.sql';
     titulo.textContent = nombreArchivo;
-    codigo.textContent = fuente.textContent.trim();
+    resaltar(fuente.textContent.trim(), nombreArchivo);
+    document.getElementById('cs-descargar').textContent = 'Descargar .' + extension(nombreArchivo);
     overlay.classList.add('abierto');
     document.body.style.overflow = 'hidden';
     dl({ event: 'caso_ver_sql', slug: slug, consulta: nombreArchivo });
@@ -318,9 +411,9 @@ FROM
       dl({ event: 'caso_salida', slug: slug, destino: a.dataset.destino })));
 
   // indice de secciones
-  const lista   = document.getElementById('cs-toc-lista');
-  const titulos = [...document.querySelectorAll('#cs-body h2')];
-  const enlaces = [];
+  const lista    = document.getElementById('cs-toc-lista');
+  const titulos  = [...document.querySelectorAll('#cs-body h2')];
+  const enlaces  = [];
 
   titulos.forEach((h, i) => {
     h.id = h.id || 'sec-' + i;

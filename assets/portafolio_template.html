@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{titulo}} - Portafolio - Angel García</title>
+  <meta name="description" content="{{descripcion}}" />
+  <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <link rel="stylesheet" href="../assets/caso.css?v=7" />
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KDXJ37SD');</script>
+  <!-- End Google Tag Manager -->
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KDXJ37SD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<nav class="topnav">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a class="topnav-logo" href="https://www.angelgarciadatablog.com/">Angel García</a>
+  </div>
+  <div class="topnav-links">
+    <a href="https://www.angelgarciadatablog.com/">Blog</a>
+    <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
+    <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
+  </div>
+</nav>
+
+<main class="cs-wrap">
+
+  <a class="cs-volver" href="../">&larr; Portafolio</a>
+
+  <header class="cs-head">
+    <div class="cs-cat">{{categoria_nombre}}</div>
+    <h1>{{titulo}}</h1>
+    <p class="cs-pregunta">{{pregunta}}</p>
+
+    {{acciones}}
+
+    {{metricas}}
+  </header>
+
+  <div class="cs-layout">
+
+    <div>
+      {{video}}
+
+      <article class="cs-body" id="cs-body">
+
+
+{{contenido}}
+
+      </article>
+    </div>
+
+    <aside class="cs-toc">
+      <h3>En esta página</h3>
+      <ul id="cs-toc-lista"></ul>
+    </aside>
+
+  </div>
+</main>
+
+<!-- ============ OVERLAY DE CÓDIGO ============ -->
+<div class="cs-overlay" id="cs-overlay">
+  <div class="cs-panel">
+    <div class="cs-panel-head">
+      <h4 id="cs-panel-titulo">Consulta SQL</h4>
+      <div class="cs-panel-acciones">
+        <button class="cs-panel-btn" id="cs-copiar">Copiar</button>
+        <button class="cs-panel-btn" id="cs-descargar">Descargar</button>
+        <button class="cs-panel-btn" id="cs-cerrar">Cerrar</button>
+      </div>
+    </div>
+    <pre><code id="cs-codigo"></code></pre>
+  </div>
+</div>
+
+{{bloques_sql}}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function () {
+  const overlay  = document.getElementById('cs-overlay');
+  const codigo   = document.getElementById('cs-codigo');
+  const titulo   = document.getElementById('cs-panel-titulo');
+  const slug     = '{{slug}}';
+  let nombreArchivo = 'consulta.sql';
+
+  // El lenguaje sale de la extension del archivo, no se asume SQL
+  const LENGUAJES = {
+    sql: 'sql', py: 'python', sh: 'bash', bash: 'bash', js: 'javascript',
+    json: 'json', yaml: 'yaml', yml: 'yaml', html: 'xml', css: 'css', md: 'markdown'
+  };
+  const extension = a => (a.split('.').pop() || '').toLowerCase();
+
+  const dl = o => { window.dataLayer = window.dataLayer || []; window.dataLayer.push(o); };
+
+  // Si highlight.js no carga, el codigo se muestra igual, sin color.
+  function resaltar(texto, archivo) {
+    codigo.textContent = texto;
+    codigo.className = 'language-' + (LENGUAJES[extension(archivo)] || 'plaintext');
+    delete codigo.dataset.highlighted;
+    if (window.hljs) hljs.highlightElement(codigo);
+  }
+
+  function abrir(id) {
+    const fuente = document.getElementById(id);
+    if (!fuente) return;
+    nombreArchivo   = fuente.dataset.titulo || 'consulta.sql';
+    titulo.textContent = nombreArchivo;
+    resaltar(fuente.textContent.trim(), nombreArchivo);
+    document.getElementById('cs-descargar').textContent = 'Descargar .' + extension(nombreArchivo);
+    overlay.classList.add('abierto');
+    document.body.style.overflow = 'hidden';
+    dl({ event: 'caso_ver_sql', slug: slug, consulta: nombreArchivo });
+  }
+
+  function cerrar() {
+    overlay.classList.remove('abierto');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-sql]').forEach(b =>
+    b.addEventListener('click', () => abrir(b.dataset.sql)));
+
+  document.getElementById('cs-cerrar').addEventListener('click', cerrar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) cerrar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrar(); });
+
+  document.getElementById('cs-copiar').addEventListener('click', async function () {
+    await navigator.clipboard.writeText(codigo.textContent);
+    this.textContent = 'Copiado';
+    setTimeout(() => { this.textContent = 'Copiar'; }, 1600);
+    dl({ event: 'caso_copiar_sql', slug: slug, consulta: nombreArchivo });
+  });
+
+  document.getElementById('cs-descargar').addEventListener('click', () => {
+    const blob = new Blob([codigo.textContent], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombreArchivo;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    dl({ event: 'caso_descargar_sql', slug: slug, consulta: nombreArchivo });
+  });
+
+  document.querySelectorAll('.cs-accion').forEach(a =>
+    a.addEventListener('click', () =>
+      dl({ event: 'caso_salida', slug: slug, destino: a.dataset.destino })));
+
+  // indice de secciones
+  const lista    = document.getElementById('cs-toc-lista');
+  const titulos  = [...document.querySelectorAll('#cs-body h2')];
+  const enlaces  = [];
+
+  titulos.forEach((h, i) => {
+    h.id = h.id || 'sec-' + i;
+    const li = document.createElement('li');
+    const a  = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    lista.appendChild(li);
+    enlaces.push(a);
+  });
+
+  const observador = new IntersectionObserver(entradas => {
+    entradas.forEach(e => {
+      if (!e.isIntersecting) return;
+      const i = titulos.indexOf(e.target);
+      enlaces.forEach((a, j) => a.classList.toggle('activo', j === i));
+    });
+  }, { rootMargin: '-88px 0px -70% 0px' });
+
+  titulos.forEach(h => observador.observe(h));
+})();
+</script>
+
+</body>
+</html>

@@ -41,26 +41,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p id="pf-bajada">Proyectos de análisis de datos, de principio a fin.</p>
 
     <nav class="pf-temas" id="pf-temas">
-      <span class="pf-temas-titulo">Temas</span>
-      <button class="pf-tema activo" data-tema="todos">Todos<span class="pf-tema-n">2</span></button>
-      <button class="pf-tema" data-tema="google-cloud">Google Cloud<span class="pf-tema-n">2</span></button>
-      <span class="pf-tema vacio">AWS<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Azure<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Git<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Claude Code<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Bash &amp; Shell<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Python<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">APIs<span class="pf-tema-n">0</span></span>
-      <button class="pf-tema" data-tema="sql">SQL<span class="pf-tema-n">2</span></button>
-      <span class="pf-tema vacio">Bases de datos<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Portafolio web<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Power BI<span class="pf-tema-n">0</span></span>
-      <button class="pf-tema" data-tema="google-analytics">Google Analytics<span class="pf-tema-n">1</span></button>
-      <span class="pf-tema vacio">Hojas de cálculo<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Formación<span class="pf-tema-n">0</span></span>
+{{temas}}
     </nav>
 
-    <div class="pf-contador" id="pf-contador">2 casos</div>
+    <div class="pf-contador" id="pf-contador">{{contador}}</div>
   </aside>
 
   <div class="pf-main">
@@ -71,35 +55,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <section class="pf-lista" id="pf-lista">
 
-    <a class="pf-card" data-slug="ecommerce-performance-insights" data-temas="google-analytics google-cloud sql"
-       href="ecommerce-performance-insights/">
-      <div class="pf-thumb"><div class="pf-thumb-vacia">portada del caso</div></div>
-      <div class="pf-body">
-        <div class="pf-cat">Google Analytics · Google Cloud · BigQuery · SQL</div>
-        <h2>Ecommerce Performance Insights</h2>
-        <p class="pf-pregunta">¿Puede esta tienda saber qué productos convierten mejor, con la medición que tiene hoy?</p>
-        <p class="pf-desc">Tres preguntas de negocio y una tabla de 4.3 millones de eventos. Once comprobaciones en SQL descubren que el evento de vista no mide vistas de producto, que el identificador no identifica productos y que la compra se duplica. Dos de las tres preguntas no se pueden responder, y el caso demuestra por qué.</p>
-        <div class="pf-metricas"><div class="pf-metrica"><b>4.3M</b><span>eventos</span></div><div class="pf-metrica"><b>92</b><span>tablas diarias</span></div><div class="pf-metrica"><b>3</b><span>meses</span></div></div>
-        <div class="pf-pie">
-          <span class="pf-cta">Ver caso &rarr;</span>
-        </div>
-      </div>
-    </a>
-
-    <a class="pf-card" data-slug="shopify-orders-analysis" data-temas="google-cloud sql"
-       href="shopify-orders-analysis/">
-      <div class="pf-thumb"><div class="pf-thumb-vacia">portada del caso</div></div>
-      <div class="pf-body">
-        <div class="pf-cat">Google Cloud · SQL · Looker Studio</div>
-        <h2>Shopify Orders Analysis</h2>
-        <p class="pf-pregunta">¿Qué patrones esconden dos años de pedidos?</p>
-        <p class="pf-desc">Un export de Shopify son 75 columnas planas sin talla, género ni categoría: hay que derivarlas del nombre del producto. Al verificar los cuatro hallazgos contra la tabla sobrevivió uno, y los tres que cayeron enseñan más que los que quedaron.</p>
-        <div class="pf-metricas"><div class="pf-metrica"><b>16,081</b><span>pedidos</span></div><div class="pf-metrica"><b>75</b><span>columnas</span></div><div class="pf-metrica"><b>24</b><span>meses</span></div></div>
-        <div class="pf-pie">
-          <span class="pf-cta">Ver caso &rarr;</span>
-        </div>
-      </div>
-    </a>
+{{cards}}
 
     <p class="pf-vacio" id="pf-vacio" hidden>Ningún caso coincide con la búsqueda.</p>
   </section>
