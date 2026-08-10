@@ -345,7 +345,13 @@ def publicar(ruta_md, plantilla):
     cuerpo = convertir_flujo(cuerpo)
     cuerpo, bloques_sql = extraer_consultas(cuerpo, meta.get("repo-consultas", ""), slug)
 
-    md = markdown.Markdown(extensions=["fenced_code", "tables"])
+    # magiclink enlaza las URL escritas a pelo, que es lo que hace Obsidian al
+    # leer. Sin el, una URL suelta en el texto salia como texto plano en la web
+    # aunque en Obsidian se viera azul. No toca las que ya son enlace, ni las de
+    # dentro de `code` o de un bloque.
+    md = markdown.Markdown(
+        extensions=["fenced_code", "tables", "pymdownx.magiclink"]
+    )
     contenido = postprocesar(md.convert(cuerpo))
 
     html = plantilla
