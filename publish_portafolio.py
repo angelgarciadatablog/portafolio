@@ -30,7 +30,7 @@ GRILLA_PATH      = REPO_ROOT / "assets" / "grilla_template.html"
 REPOS_BASE       = Path.home() / "repositorios" / "proyectos"
 
 STATUS_PUBLICABLES = {"listo", "publicado"}
-CSS_VERSION        = 8          # subir al tocar caso.css
+CSS_VERSION        = 9          # subir al tocar caso.css
 
 # Los 15 temas del vault, en el mismo orden y con los mismos nombres que la lista
 # madre de vault/datablog/00-index.md. Si cambia alli, cambia aqui.
@@ -274,12 +274,22 @@ def render_acciones(meta, slug):
     return f'<div class="cs-acciones">{enlaces}</div>' if enlaces else ""
 
 
-def render_video(url):
+def render_video(url, portada, titulo, slug):
+    """
+    El hueco del video es el mismo en los tres estados, para que la pagina no
+    cambie de altura cuando llegue el video:
+        con video           -> el embed de YouTube
+        sin video, con portada -> la portada, la misma imagen de la tarjeta
+        sin nada            -> el hueco marcado
+    """
     if not url:
+        if portada:
+            return (f'<div class="cs-video"><img src="{portada}" '
+                    f'alt="{htmlmod.escape(str(titulo))}" /></div>')
         return '<div class="cs-video"><div class="cs-video-vacio">video del proyecto</div></div>'
     vid = re.search(r"(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})", url)
     if not vid:
-        return ""
+        sys.exit(f"✗ {slug}: video-youtube no tiene un id de 11 caracteres: {url}")
     return (
         '<div class="cs-video"><iframe src="https://www.youtube.com/embed/'
         f'{vid.group(1)}" title="Video del proyecto" frameborder="0" '
@@ -346,7 +356,9 @@ def publicar(ruta_md, plantilla):
         "{{pregunta}}":         meta.get("pregunta", ""),
         "{{acciones}}":         render_acciones(meta, slug),
         "{{metricas}}":         render_metricas(leer_metricas(meta)),
-        "{{video}}":            render_video(meta.get("video-youtube")),
+        "{{video}}":            render_video(meta.get("video-youtube"),
+                                             meta.get("portada"),
+                                             meta.get("titulo", slug), slug),
         "{{contenido}}":        contenido,
         "{{bloques_sql}}":      bloques_sql,
         "{{slug}}":             slug,
