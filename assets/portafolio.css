@@ -314,12 +314,6 @@
      los enlaces del sitio pasan al pie del cajón */
   .topnav-links { display: none; }
 
-  /* styles.css pone .menu-btn{display:block} dentro de su media query (l.202),
-     pero más abajo lo vuelve a declarar display:none (l.234) y esa gana: las
-     media queries no suman especificidad, así que decide el orden del archivo.
-     Como portafolio.css se carga después, aquí lo devolvemos a la vista. */
-  .menu-btn { display: block; }
-
   .pf-panel-enlaces {
     display: flex;
     flex-direction: column;
