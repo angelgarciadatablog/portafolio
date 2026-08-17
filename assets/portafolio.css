@@ -129,6 +129,9 @@
 }
 
 /* ---------- TEMAS (barra lateral) ---------- */
+/* En escritorio el panel es un bloque normal dentro de .pf-side.
+   En móvil se convierte en el cajón que abre la hamburguesa del header
+   (ver el bloque responsive). */
 .pf-temas {
   display: flex;
   flex-direction: column;
@@ -163,8 +166,9 @@
 .pf-tema:hover  { color: var(--color-texto); }
 .pf-tema.activo { color: var(--color-texto); font-weight: 600; }
 
-/* Un tema sin proyectos se ve pero no se pulsa: el hueco es información */
-.pf-tema.vacio { color: #454545; cursor: default; }
+/* Todos los temas se leen igual. Un tema sin proyectos no se atenúa:
+   solo deja de ser pulsable (y su contador dice 0). */
+.pf-tema.vacio { color: var(--color-texto-cuerpo); cursor: default; }
 
 .pf-tema-n {
   font-size: 12px;
@@ -173,7 +177,6 @@
 }
 
 .pf-tema.activo .pf-tema-n { color: var(--color-texto-suave); }
-.pf-tema.vacio  .pf-tema-n { color: #3a3a3a; }
 
 /* ---------- CONTENIDO ---------- */
 .pf-cat {
@@ -251,6 +254,9 @@
 
 .pf-card:hover .pf-cta { color: var(--color-acento); }
 
+/* En escritorio los enlaces del sitio están en el header, no en la barra */
+.pf-panel-enlaces { display: none; }
+
 /* ---------- VACÍO ---------- */
 .pf-vacio {
   color: var(--color-texto-suave);
@@ -265,13 +271,65 @@
   .pf-card { grid-template-columns: 210px minmax(0, 1fr); gap: 26px; }
 }
 
-@media (max-width: 860px) {
+/* Mismo punto de corte que el header del blog: a 900px aparece .menu-btn
+   (definido en /assets/styles.css) y el layout pasa a una columna. */
+@media (max-width: 900px) {
   .pf-layout { grid-template-columns: 1fr; gap: 30px; padding: 32px 24px 64px; }
   .pf-side { position: static; }
   .pf-side p { margin-bottom: 22px; }
-  .pf-filtros { flex-direction: row; flex-wrap: wrap; gap: 18px; }
-  .pf-contador { display: none; }
   .pf-card { grid-template-columns: 1fr; gap: 18px; padding: 24px 0; }
   .pf-thumb { aspect-ratio: 16 / 9; }
   .pf-metricas { gap: 24px; }
+
+  /* ----- PANEL DE TEMAS (cajón de la hamburguesa del header) ----- */
+  /* Mismas medidas que el #sidebar del blog: bajo el topnav de 56px */
+  .pf-panel-temas {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: min(280px, 80vw);
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    padding: 20px 16px;
+    background-color: var(--color-fondo);
+    border-right: 1px solid var(--color-borde);
+    z-index: 100;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .2s ease, visibility .2s ease;
+  }
+
+  .pf-panel-temas.abierto {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .pf-temas { margin-bottom: 20px; }
+  .pf-tema { padding: 7px 0; }
+
+  /* Dentro del cajón sí hay sitio para el contador */
+  .pf-contador { margin-top: 0; }
+
+  /* El header se queda solo con el logo y la hamburguesa:
+     los enlaces del sitio pasan al pie del cajón */
+  .topnav-links { display: none; }
+
+  /* styles.css pone .menu-btn{display:block} dentro de su media query (l.202),
+     pero más abajo lo vuelve a declarar display:none (l.234) y esa gana: las
+     media queries no suman especificidad, así que decide el orden del archivo.
+     Como portafolio.css se carga después, aquí lo devolvemos a la vista. */
+  .menu-btn { display: block; }
+
+  .pf-panel-enlaces {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-borde);
+    font-size: 13px;
+  }
+
+  .pf-panel-enlaces a { color: var(--color-texto-cuerpo); }
+  .pf-panel-enlaces a:hover { color: var(--color-texto); }
 }

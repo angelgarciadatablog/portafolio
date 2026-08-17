@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
-  <link rel="stylesheet" href="assets/portafolio.css?v=2" />
+  <link rel="stylesheet" href="assets/portafolio.css?v=7" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -25,6 +25,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <nav class="topnav">
   <div style="display:flex;align-items:center;gap:8px;">
+    <button class="menu-btn" id="pf-menu-btn" type="button" aria-label="Abrir temas"
+            aria-expanded="false" aria-controls="pf-panel-temas">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
     <a class="topnav-logo" href="https://www.angelgarciadatablog.com/">Angel García</a>
   </div>
   <div class="topnav-links">
@@ -34,17 +38,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </nav>
 
+<div class="sidebar-overlay" id="pf-overlay"></div>
+
 <main class="pf-layout">
 
   <aside class="pf-side">
     <h1>Portafolio</h1>
     <p id="pf-bajada">Proyectos de análisis de datos, de principio a fin.</p>
 
-    <nav class="pf-temas" id="pf-temas">
+    <!-- En móvil este bloque es el panel que abre la hamburguesa del header -->
+    <div class="pf-panel-temas" id="pf-panel-temas">
+      <nav class="pf-temas" id="pf-temas">
 {{temas}}
-    </nav>
+      </nav>
 
-    <div class="pf-contador" id="pf-contador">{{contador}}</div>
+      <div class="pf-contador" id="pf-contador">{{contador}}</div>
+
+      <!-- Solo visibles en móvil: en escritorio estos enlaces viven en el header -->
+      <div class="pf-panel-enlaces">
+        <a href="https://www.angelgarciadatablog.com/">Blog</a>
+        <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
+        <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
+      </div>
+    </div>
   </aside>
 
   <div class="pf-main">
@@ -71,9 +87,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const vacio    = document.getElementById('pf-vacio');
   const contador = document.getElementById('pf-contador');
   const buscador = document.getElementById('pf-buscador');
+  const panel    = document.getElementById('pf-panel-temas');
+  const overlay  = document.getElementById('pf-overlay');
+  const menuBtn  = document.getElementById('pf-menu-btn');
 
   let tema = 'todos';
   let consulta  = '';
+
+  // Mismo punto de corte que el header del blog (.menu-btn aparece a 900px)
+  const esMovil = () => window.matchMedia('(max-width: 900px)').matches;
+
+  function abrirTemas(abierto) {
+    panel.classList.toggle('abierto', abierto);
+    overlay.classList.toggle('visible', abierto);
+    menuBtn.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+  }
+
+  menuBtn.addEventListener('click', () => {
+    abrirTemas(!panel.classList.contains('abierto'));
+  });
+
+  overlay.addEventListener('click', () => abrirTemas(false));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') abrirTemas(false);
+  });
 
   const normalizar = t => t.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
 
@@ -99,6 +137,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     tema = btn.dataset.tema;
     filtros.forEach(b => b.classList.toggle('activo', b === btn));
     aplicar();
+
+    // En móvil el panel se cierra al elegir tema
+    if (esMovil()) abrirTemas(false);
 
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: 'portafolio_filtro', tema: tema });
