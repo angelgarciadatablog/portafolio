@@ -32,24 +32,25 @@ REPOS_BASE       = Path.home() / "repositorios" / "proyectos"
 STATUS_PUBLICABLES = {"listo", "publicado"}
 CSS_VERSION        = 9          # subir al tocar caso.css
 
-# Los 15 temas del vault, en el mismo orden y con los mismos nombres que la lista
-# madre de vault/datablog/00-index.md. Si cambia alli, cambia aqui.
+# Los 15 temas del vault, en el mismo orden (alfabetico por nombre, A-Z) y con
+# los mismos nombres que la lista madre de vault/datablog/00-categorias.md.
+# Si cambia alli, cambia aqui.
 TEMAS = {
-    "google-cloud":     "Google Cloud",
+    "apis":             "APIs",
     "aws":              "AWS",
     "azure":            "Azure",
-    "git":              "Git",
-    "claude-code":      "Claude Code",
-    "bash-shell":       "Bash & Shell",
-    "python":           "Python",
-    "apis":             "APIs",
-    "sql":              "SQL",
     "bases-de-datos":   "Bases de datos",
+    "bash-shell":       "Bash & Shell",
+    "claude-code":      "Claude Code",
+    "git":              "Git",
+    "google-analytics": "Google Analytics",
+    "google-cloud":     "Google Cloud",
+    "hojas-de-calculo": "Hojas de cálculo",
     "portafolio-web":   "Portafolio web",
     "power-bi":         "Power BI",
-    "google-analytics": "Google Analytics",
-    "hojas-de-calculo": "Hojas de cálculo",
-    "formacion":        "Formación",
+    "python":           "Python",
+    "sistemas-y-redes": "Sistemas y redes",
+    "sql":              "SQL",
 }
 
 # Botones de la cabecera. Lista CERRADA y en este orden: cada clave es un valor
