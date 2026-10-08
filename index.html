@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="https://www.angelgarciadatablog.com/img/favicon.png" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://www.angelgarciadatablog.com/assets/styles.css" />
-  <link rel="stylesheet" href="assets/portafolio.css?v=8" />
+  <link rel="stylesheet" href="assets/portafolio.css?v=9" />
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -26,13 +26,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <nav class="topnav">
   <div style="display:flex;align-items:center;gap:8px;">
     <button class="menu-btn" id="pf-menu-btn" type="button" aria-label="Abrir temas"
-            aria-expanded="false" aria-controls="pf-panel-temas">
+            aria-expanded="false" aria-controls="sidebar">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <a class="topnav-logo" href="https://www.angelgarciadatablog.com/">Angel García</a>
   </div>
+  <!-- Mismo topnav que el blog (index.html del repo web) -->
   <div class="topnav-links">
-    <a href="https://www.angelgarciadatablog.com/">Blog</a>
+    <div class="topnav-cursos">
+      <button type="button" class="topnav-cursos-btn" aria-expanded="false" aria-haspopup="true">Cursos<span class="topnav-chev"></span></button>
+      <div class="topnav-cursos-menu">
+        <a href="https://www.angelgarciadatablog.com/curso-sql/">SQL desde cero<span>Gratis · 12 bloques</span></a>
+      </div>
+    </div>
+    <a href="https://www.angelgarciadatablog.com/portafolio">Portafolio</a>
     <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
     <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
   </div>
@@ -40,50 +47,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <div class="sidebar-overlay" id="pf-overlay"></div>
 
-<main class="pf-layout">
-
-  <aside class="pf-side">
-    <h1>Portafolio</h1>
-    <p id="pf-bajada">Proyectos de análisis de datos, de principio a fin.</p>
-
-    <!-- En móvil este bloque es el panel que abre la hamburguesa del header -->
-    <div class="pf-panel-temas" id="pf-panel-temas">
-      <nav class="pf-temas" id="pf-temas">
-      <span class="pf-temas-titulo">Temas</span>
-      <button class="pf-tema activo" data-tema="todos">Todos<span class="pf-tema-n">1</span></button>
-      <span class="pf-tema vacio">APIs<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">AWS<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Azure<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Bases de datos<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Bash &amp; Shell<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Claude Code<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Git<span class="pf-tema-n">0</span></span>
-      <button class="pf-tema" data-tema="google-analytics">Google Analytics<span class="pf-tema-n">1</span></button>
-      <button class="pf-tema" data-tema="google-cloud">Google Cloud<span class="pf-tema-n">1</span></button>
-      <span class="pf-tema vacio">Hojas de cálculo<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Portafolio web<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Power BI<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Python<span class="pf-tema-n">0</span></span>
-      <span class="pf-tema vacio">Sistemas y redes<span class="pf-tema-n">0</span></span>
-      <button class="pf-tema" data-tema="sql">SQL<span class="pf-tema-n">1</span></button>
-      </nav>
-
-      <div class="pf-contador" id="pf-contador">1 caso</div>
-
-      <!-- Solo visibles en móvil: en escritorio estos enlaces viven en el header -->
-      <div class="pf-panel-enlaces">
-        <a href="https://www.angelgarciadatablog.com/">Blog</a>
-        <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
-        <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
-      </div>
-    </div>
-  </aside>
-
-  <div class="pf-main">
-
-  <div class="search-box pf-buscador-top">
-    <input type="text" id="pf-buscador" placeholder="Buscar por herramienta, fuente o tema..." autocomplete="off" />
+<!-- SIDEBAR FIJO — mismo #sidebar del blog: estilos en /assets/styles.css del
+     repo web. Aquí solo cambia lo que lista: los temas del portafolio. -->
+<aside id="sidebar">
+  <div class="search-box">
+    <input type="text" id="pf-buscador" placeholder="Buscar..." autocomplete="off" />
   </div>
+  <nav>
+    <a class="sidebar-link" href="https://www.angelgarciadatablog.com/">Inicio</a>
+    <a class="sidebar-link activo" href="https://www.angelgarciadatablog.com/portafolio">Portafolio</a>
+
+    <div class="pf-temas" id="pf-temas">
+      <div class="pf-temas-titulo">Temas</div>
+      <button class="sidebar-link pf-tema activo" data-tema="todos">Todos<span class="pf-tema-n">1</span></button>
+      <span class="sidebar-link pf-tema vacio">APIs<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">AWS<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Azure<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Bases de datos<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Bash &amp; Shell<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Claude Code<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Git<span class="pf-tema-n">0</span></span>
+      <button class="sidebar-link pf-tema" data-tema="google-analytics">Google Analytics<span class="pf-tema-n">1</span></button>
+      <button class="sidebar-link pf-tema" data-tema="google-cloud">Google Cloud<span class="pf-tema-n">1</span></button>
+      <span class="sidebar-link pf-tema vacio">Hojas de cálculo<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Portafolio web<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Power BI<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Python<span class="pf-tema-n">0</span></span>
+      <span class="sidebar-link pf-tema vacio">Sistemas y redes<span class="pf-tema-n">0</span></span>
+      <button class="sidebar-link pf-tema" data-tema="sql">SQL<span class="pf-tema-n">1</span></button>
+    </div>
+  </nav>
+
+  <!-- Solo visibles en móvil: en escritorio estos enlaces viven en el header -->
+  <div class="pf-panel-enlaces">
+    <a href="https://www.youtube.com/@angelgarciadatablog" target="_blank">YouTube</a>
+    <a href="https://www.linkedin.com/in/angelgarciachanga/" target="_blank">LinkedIn</a>
+  </div>
+</aside>
+
+<main class="pf-layout">
+  <h1 class="pf-titulo">Portafolio</h1>
+  <p class="pf-bajada" id="pf-bajada">Proyectos de análisis de datos, de principio a fin.</p>
+  <div class="pf-contador" id="pf-contador">1 caso</div>
 
   <section class="pf-lista" id="pf-lista">
 
@@ -104,9 +109,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <p class="pf-vacio" id="pf-vacio" hidden>Ningún caso coincide con la búsqueda.</p>
   </section>
-
-  </div>
-
 </main>
 
 <script>
@@ -116,12 +118,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const vacio    = document.getElementById('pf-vacio');
   const contador = document.getElementById('pf-contador');
   const buscador = document.getElementById('pf-buscador');
-  const panel    = document.getElementById('pf-panel-temas');
+  const panel    = document.getElementById('sidebar');
   const overlay  = document.getElementById('pf-overlay');
   const menuBtn  = document.getElementById('pf-menu-btn');
 
   let tema = 'todos';
   let consulta  = '';
+
+  // Mismo ancho de sidebar que el blog si el visitante lo arrastró allí: el
+  // dominio es el mismo, así que comparten localStorage.
+  try {
+    const ancho = parseInt(localStorage.getItem('sidebar-width'), 10);
+    if (ancho >= 240 && ancho <= 440) {
+      document.documentElement.style.setProperty('--sidebar-width', ancho + 'px');
+    }
+  } catch (e) {}
 
   // Mismo punto de corte que el header del blog (.menu-btn aparece a 900px)
   const esMovil = () => window.matchMedia('(max-width: 900px)').matches;

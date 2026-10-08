@@ -418,18 +418,18 @@ def render_temas(casos):
             conteo[tema] += 1
 
     filas = [
-        '      <span class="pf-temas-titulo">Temas</span>',
-        f'      <button class="pf-tema activo" data-tema="todos">'
+        '      <div class="pf-temas-titulo">Temas</div>',
+        f'      <button class="sidebar-link pf-tema activo" data-tema="todos">'
         f'Todos<span class="pf-tema-n">{len(casos)}</span></button>',
     ]
     for slug_tema, nombre in TEMAS.items():
         nombre = htmlmod.escape(nombre)
         n = conteo[slug_tema]
         if n:
-            filas.append(f'      <button class="pf-tema" data-tema="{slug_tema}">'
+            filas.append(f'      <button class="sidebar-link pf-tema" data-tema="{slug_tema}">'
                          f'{nombre}<span class="pf-tema-n">{n}</span></button>')
         else:
-            filas.append(f'      <span class="pf-tema vacio">'
+            filas.append(f'      <span class="sidebar-link pf-tema vacio">'
                          f'{nombre}<span class="pf-tema-n">0</span></span>')
     return "\n".join(filas)
 
