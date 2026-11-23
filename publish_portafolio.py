@@ -27,7 +27,7 @@ TEMPLATE_PATH    = REPO_ROOT / "assets" / "portafolio_template.html"
 GRILLA_PATH      = REPO_ROOT / "assets" / "grilla_template.html"
 # Los repos de analisis viven fuera de este repo: el frontmatter declara cual y
 # el script resuelve la ruta. Asi el vault nunca guarda rutas de usuario.
-REPOS_BASE       = Path.home() / "repositorios" / "proyectos"
+REPOS_BASE       = Path.home() / "repos" / "angelgarciadatablog"
 
 STATUS_PUBLICABLES = {"listo", "publicado"}
 CSS_VERSION        = 9          # subir al tocar caso.css
@@ -87,8 +87,8 @@ args = parser.parse_args()
 
 # ─── BLOQUES PROPIOS ──────────────────────────────────────────────────────────
 def resolver_repo(nombre):
-    """ecommerce-performance-insights -> ~/repositorios/proyectos/proyecto-<n>/<n>"""
-    return REPOS_BASE / f"proyecto-{nombre}" / nombre
+    """ecommerce-performance-insights -> ~/repos/angelgarciadatablog/<n>"""
+    return REPOS_BASE / nombre
 
 
 def extraer_consultas(cuerpo, repo_consultas, slug):

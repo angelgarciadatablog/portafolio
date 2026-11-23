@@ -10,11 +10,9 @@ Sitio estático sin build. El nombre del repo forma la URL (mismo patrón que [`
 ```
 portafolio/
 ├── index.html                              # grilla de casos
-├── assets/
-│   ├── portafolio.css                      # estilos de la grilla
-│   └── caso.css                            # estilos de la página de caso
-└── shopify-orders-analysis/
-    └── index.html
+└── assets/
+    ├── portafolio.css                      # estilos de la grilla
+    └── caso.css                            # estilos de la página de caso
 ```
 
 **La identidad visual se hereda del blog**: cada página enlaza
