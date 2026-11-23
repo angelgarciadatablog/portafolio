@@ -13,8 +13,6 @@ portafolio/
 ├── assets/
 │   ├── portafolio.css                      # estilos de la grilla
 │   └── caso.css                            # estilos de la página de caso
-├── ecommerce-performance-insights/
-│   └── index.html
 └── shopify-orders-analysis/
     └── index.html
 ```
